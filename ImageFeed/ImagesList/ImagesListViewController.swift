@@ -1,14 +1,15 @@
 import UIKit
 
+private enum Constants {
+    static let likeActiveImageName = "LikeActive"
+    static let likeInactiveImageName = "LikeInactive"
+}
+
+
 final class ImagesListViewController: UIViewController {
     @IBOutlet private var tableView: UITableView!
     
     private let imageNames: [String] = (0..<20).map(String.init)
-    
-    private enum Constants {
-        static let likeActiveImageName = "LikeActive"
-        static let likeInactiveImageName = "LikeInactive"
-    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -43,7 +44,6 @@ extension ImagesListViewController: UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: ImagesListCell.reuseIdentifier, for: indexPath)
-        
         guard let imageListCell = cell as? ImagesListCell else {
             // TODO Тут лучше логировать ошибку
             return UITableViewCell()
@@ -59,6 +59,7 @@ extension ImagesListViewController: UITableViewDataSource {
         guard let image = UIImage(named: imageName) else {
             return
         }
+        
         cell.backgroundImageView.image = image
         cell.backgroundImageView.layer.cornerRadius = 16
         cell.backgroundImageView.layer.masksToBounds = true
