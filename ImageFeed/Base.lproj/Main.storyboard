@@ -112,7 +112,7 @@
                                     <outlet property="delegate" destination="9yT-Gl-wly" id="Bik-iz-mtf"/>
                                 </connections>
                             </scrollView>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="unz-AY-fkO">
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="unz-AY-fkO" userLabel="BackButton">
                                 <rect key="frame" x="8" y="70" width="24" height="24"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="24" id="1JT-N1-Bez"/>
@@ -123,15 +123,29 @@
                                     <action selector="didTapBackButton:" destination="9yT-Gl-wly" eventType="touchUpInside" id="HFW-NM-Nyz"/>
                                 </connections>
                             </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="sa9-IB-gSf" userLabel="SharingButton">
+                                <rect key="frame" x="171.66666666666666" y="751" width="50" height="50"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="50" id="0Sz-Ad-Njj"/>
+                                    <constraint firstAttribute="height" constant="50" id="IqP-Rv-hpB"/>
+                                </constraints>
+                                <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
+                                <state key="normal" title="Button" image="Sharing"/>
+                                <connections>
+                                    <action selector="didTapShareButton:" destination="9yT-Gl-wly" eventType="touchUpInside" id="txE-Ry-fie"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="twy-NS-eLt"/>
                         <color key="backgroundColor" name="YP Black"/>
                         <constraints>
+                            <constraint firstItem="twy-NS-eLt" firstAttribute="bottom" secondItem="sa9-IB-gSf" secondAttribute="bottom" constant="17" id="6w6-pu-XP5"/>
                             <constraint firstItem="unz-AY-fkO" firstAttribute="top" secondItem="twy-NS-eLt" secondAttribute="top" constant="11" id="70J-41-mxb"/>
                             <constraint firstItem="twy-NS-eLt" firstAttribute="trailing" secondItem="4sy-CP-8nv" secondAttribute="trailing" id="F9L-og-n4g"/>
                             <constraint firstItem="unz-AY-fkO" firstAttribute="leading" secondItem="twy-NS-eLt" secondAttribute="leading" constant="8" id="OLh-TJ-MSN"/>
                             <constraint firstItem="4sy-CP-8nv" firstAttribute="bottom" secondItem="h4D-Vb-oP8" secondAttribute="bottom" id="Zem-uC-s7I"/>
                             <constraint firstItem="4sy-CP-8nv" firstAttribute="leading" secondItem="twy-NS-eLt" secondAttribute="leading" id="gBu-Ki-OGI"/>
+                            <constraint firstItem="sa9-IB-gSf" firstAttribute="centerX" secondItem="twy-NS-eLt" secondAttribute="centerX" id="qRa-Vh-j1n"/>
                             <constraint firstAttribute="top" secondItem="4sy-CP-8nv" secondAttribute="top" id="znp-if-Nre"/>
                         </constraints>
                     </view>
@@ -254,6 +268,7 @@
         <image name="LikeActive" width="44" height="44"/>
         <image name="MainActive" width="30" height="30"/>
         <image name="ProfileActive" width="30" height="30"/>
+        <image name="Sharing" width="50" height="50"/>
         <namedColor name="YP Black">
             <color red="0.10196078431372549" green="0.10588235294117647" blue="0.13333333333333333" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
