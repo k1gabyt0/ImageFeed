@@ -23,7 +23,7 @@ final class SingleImageViewController: UIViewController {
         view.layoutIfNeeded()
 
         fullScreenScale = calculateScaleFor(image: image)
-        rescaleAndCenterImageInScrollView(image: image)
+        rescaleAndCenterImageInScrollView()
     }
 
     @IBAction func didTapBackButton(_ sender: Any) {
@@ -40,20 +40,16 @@ final class SingleImageViewController: UIViewController {
         present(shareView, animated: true, completion: nil)
     }
 
-    private func rescaleAndCenterImageInScrollView(image: UIImage) {
-        scrollView.setZoomScale(fullScreenScale, animated: false)
+    private func rescaleAndCenterImageInScrollView(animated: Bool = false) {
+        scrollView.setZoomScale(fullScreenScale, animated: animated)
         scrollView.layoutIfNeeded()
 
         let visibleRectSize = scrollView.bounds.size
         let newContentSize = scrollView.contentSize
         let x = (newContentSize.width - visibleRectSize.width) / 2
         let y = (newContentSize.height - visibleRectSize.height) / 2
-        scrollView.contentInset = UIEdgeInsets(
-            top: -y,
-            left: -x,
-            bottom: -y,
-            right: -x
-        )
+        scrollView.contentOffset.x = x
+        scrollView.contentOffset.y = y
     }
 
     private func calculateScaleFor(image: UIImage) -> CGFloat {
@@ -71,7 +67,7 @@ final class SingleImageViewController: UIViewController {
 
         return min(
             maxZoomScale,
-            max(minZoomScale, min(hScale, vScale))
+            max(minZoomScale, max(hScale, vScale))
         )
     }
 }
@@ -91,6 +87,6 @@ extension SingleImageViewController: UIScrollViewDelegate {
         }
 
         // Откатываемся по красоте на дефолтный масштаб если отдалили картинку далеко
-        scrollView.setZoomScale(fullScreenScale, animated: true)
+        rescaleAndCenterImageInScrollView(animated: true)
     }
 }
