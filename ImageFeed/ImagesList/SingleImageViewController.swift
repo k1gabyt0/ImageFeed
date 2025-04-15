@@ -77,6 +77,29 @@ extension SingleImageViewController: UIScrollViewDelegate {
         imageView
     }
 
+    // Центрируем картинку во время зума с помощью contentInset
+    func scrollViewDidZoom(_ scrollView: UIScrollView) {
+        let newContentSize = scrollView.contentSize
+        let visibleRectSize = scrollView.bounds.size
+
+        var hInset: CGFloat = 0
+        if newContentSize.width < visibleRectSize.width {
+            hInset = (visibleRectSize.width - newContentSize.width) / 2
+        }
+        var vInset: CGFloat = 0
+        if newContentSize.height < visibleRectSize.height {
+            vInset = (visibleRectSize.height - newContentSize.height) / 2
+        }
+
+        scrollView.contentInset = UIEdgeInsets(
+            top: vInset,
+            left: hInset,
+            bottom: vInset,
+            right: hInset
+        )
+    }
+
+    // Откатываемся по красоте на дефолтный масштаб если отдалили картинку далеко
     func scrollViewDidEndZooming(
         _ scrollView: UIScrollView,
         with view: UIView?,
@@ -86,7 +109,6 @@ extension SingleImageViewController: UIScrollViewDelegate {
             return
         }
 
-        // Откатываемся по красоте на дефолтный масштаб если отдалили картинку далеко
         rescaleAndCenterImageInScrollView(animated: true)
     }
 }
