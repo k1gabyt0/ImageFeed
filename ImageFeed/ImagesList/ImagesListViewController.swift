@@ -24,7 +24,7 @@ final class ImagesListViewController: UIViewController {
             right: 0
         )
     }
-    
+
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == showSingleImageSegueIdentifier {
             guard
@@ -32,7 +32,6 @@ final class ImagesListViewController: UIViewController {
                     as? SingleImageViewController,
                 let indexPath = sender as? IndexPath
             else {
-                assertionFailure("Invalid segue destination")
                 return
             }
 
@@ -49,7 +48,10 @@ extension ImagesListViewController: UITableViewDelegate {
         _ tableView: UITableView,
         didSelectRowAt indexPath: IndexPath
     ) {
-        performSegue(withIdentifier: showSingleImageSegueIdentifier, sender: indexPath)
+        performSegue(
+            withIdentifier: showSingleImageSegueIdentifier,
+            sender: indexPath
+        )
     }
 
     func tableView(
