@@ -1,6 +1,6 @@
 import UIKit
 
-private enum Constants {
+private enum Images {
     static let likeActiveImageName = "LikeActive"
     static let likeInactiveImageName = "LikeInactive"
 }
@@ -110,9 +110,9 @@ extension ImagesListViewController: UITableViewDataSource {
 
         let likeImage =
             if index.row % 2 == 0 {
-                UIImage(named: Constants.likeActiveImageName)
+                UIImage(named: Images.likeActiveImageName)
             } else {
-                UIImage(named: Constants.likeInactiveImageName)
+                UIImage(named: Images.likeInactiveImageName)
             }
         cell.likeButton.setImage(likeImage, for: .normal)
     }
