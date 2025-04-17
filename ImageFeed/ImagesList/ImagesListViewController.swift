@@ -1,10 +1,5 @@
 import UIKit
 
-private enum Images {
-    static let likeActiveImageName = "LikeActive"
-    static let likeInactiveImageName = "LikeInactive"
-}
-
 final class ImagesListViewController: UIViewController {
     @IBOutlet private var tableView: UITableView!
 
@@ -110,9 +105,9 @@ extension ImagesListViewController: UITableViewDataSource {
 
         let likeImage =
             if index.row % 2 == 0 {
-                UIImage(named: Images.likeActiveImageName)
+                UIImage(named: Constants.Images.likeActiveImageName)
             } else {
-                UIImage(named: Images.likeInactiveImageName)
+                UIImage(named: Constants.Images.likeInactiveImageName)
             }
         cell.likeButton.setImage(likeImage, for: .normal)
     }

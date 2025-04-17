@@ -1,10 +1,5 @@
 import UIKit
 
-private enum Icons {
-    static let avatar = "Avatar"
-    static let logout = "Exit"
-}
-
 final class ProfileViewController: UIViewController {
     private var profileImageView: UIImageView!
     private var nameLabel: UILabel!
@@ -21,7 +16,9 @@ final class ProfileViewController: UIViewController {
     private func setupUI() {
         view.backgroundColor = .ypBlack
 
-        profileImageView = UIImageView(image: UIImage(named: Icons.avatar))
+        profileImageView = UIImageView(
+            image: UIImage(named: Constants.Images.avatar)
+        )
         nameLabel = UILabel()
         nicknameLabel = UILabel()
         descriptionLabel = UILabel()
@@ -135,7 +132,10 @@ final class ProfileViewController: UIViewController {
 
     private func setupLogoutButton() -> [NSLayoutConstraint] {
         logoutButton.translatesAutoresizingMaskIntoConstraints = false
-        logoutButton.setImage(UIImage(named: Icons.logout), for: .normal)
+        logoutButton.setImage(
+            UIImage(named: Constants.Images.logout),
+            for: .normal
+        )
         view.addSubview(logoutButton)
 
         let safeArea = view.safeAreaLayoutGuide
