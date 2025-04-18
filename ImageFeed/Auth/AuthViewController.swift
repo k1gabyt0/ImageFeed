@@ -26,14 +26,17 @@ final class AuthViewController: UIViewController {
 }
 
 extension AuthViewController: WebViewViewControllerDelegate {
-    func webViewViewController(_ vc: WebViewViewController, didAuthenticateWithCode code: String) {
-        <#code#>
+    func webViewViewController(
+        _ vc: WebViewViewController,
+        didAuthenticateWithCode code: String
+    ) {
+        
     }
-    
+
     func webViewViewControllerDidCancel(_ vc: WebViewViewController) {
         vc.dismiss(animated: true)
     }
-    
+
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == showWebViewSegueIdentifier {
             guard
@@ -42,10 +45,10 @@ extension AuthViewController: WebViewViewControllerDelegate {
                 print("destination is not WebViewViewController")
                 return
             }
-            
+
             webView.delegate = self
         }
-        
+
         super.prepare(for: segue, sender: sender)
     }
 }
