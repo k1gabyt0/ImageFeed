@@ -24,3 +24,28 @@ final class AuthViewController: UIViewController {
         navigationItem.backBarButtonItem?.tintColor = .ypBlack
     }
 }
+
+extension AuthViewController: WebViewViewControllerDelegate {
+    func webViewViewController(_ vc: WebViewViewController, didAuthenticateWithCode code: String) {
+        <#code#>
+    }
+    
+    func webViewViewControllerDidCancel(_ vc: WebViewViewController) {
+        vc.dismiss(animated: true)
+    }
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if segue.identifier == showWebViewSegueIdentifier {
+            guard
+                let webView = segue.destination as? WebViewViewController
+            else {
+                print("destination is not WebViewViewController")
+                return
+            }
+            
+            webView.delegate = self
+        }
+        
+        super.prepare(for: segue, sender: sender)
+    }
+}

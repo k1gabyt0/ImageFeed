@@ -241,7 +241,7 @@
                     </view>
                     <navigationItem key="navigationItem" id="9lS-te-PnK"/>
                     <connections>
-                        <outlet property="webViewController" destination="AjY-pA-xrP" id="8pA-6p-xaG"/>
+                        <outlet property="webView" destination="AjY-pA-xrP" id="8pA-6p-xaG"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Vat-Qc-Btq" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
