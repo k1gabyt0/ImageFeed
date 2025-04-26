@@ -27,11 +27,11 @@ final class WebViewViewController: UIViewController {
     private func loadAuthWebView() {
         guard
             var urlComponents = URLComponents(
-                string: Constants.Unsplash.authorizeURLString
+                string: Constants.Unsplash.authorizeURL
             )
         else {
             print(
-                "can't construct URLComponents from string: \(Constants.Unsplash.authorizeURLString)"
+                "can't construct URLComponents from string: \(Constants.Unsplash.authorizeURL)"
             )
             return
         }
@@ -113,7 +113,7 @@ extension WebViewViewController: WKNavigationDelegate {
         decisionHandler: @escaping (WKNavigationActionPolicy) -> Void
     ) {
         if let code = code(from: navigationAction) {
-            //TODO: process code
+            delegate?.webViewViewController(self, didAuthenticateWithCode: code)
             decisionHandler(.cancel)
         } else {
             decisionHandler(.allow)
