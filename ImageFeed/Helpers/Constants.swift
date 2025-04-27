@@ -9,7 +9,7 @@ enum Constants {
         static let accessScope = "public+read_user+write_likes"
         static let defaultBaseURL = URL(string: "https://api.unsplash.com")
         static let authorizeURL = "https://unsplash.com/oauth/authorize"
-        static let tokenURL = "https://api.unsplash.com/oauth/token"
+        static let tokenURL = "https://unsplash.com/oauth/token"
         
         
         enum GrantType {

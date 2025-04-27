@@ -31,9 +31,7 @@ extension URLSession {
                             .failure(NetworkError.httpStatusCode(statusCode))
                         )
                     }
-                }
-
-                if let error = error {
+                } else if let error = error {
                     fulfillCompletionOnTheMainThread(
                         .failure(NetworkError.urlRequestError(error))
                     )
