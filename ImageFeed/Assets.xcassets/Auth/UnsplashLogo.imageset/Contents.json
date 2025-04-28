@@ -1,7 +1,7 @@
 {
   "images" : [
     {
-      "filename" : "Backward.svg",
+      "filename" : "Logo_of_Unsplash.svg",
       "idiom" : "universal",
       "scale" : "1x"
     },
@@ -19,7 +19,6 @@
     "version" : 1
   },
   "properties" : {
-    "preserves-vector-representation" : true,
-    "template-rendering-intent" : "template"
+    "preserves-vector-representation" : true
   }
 }
