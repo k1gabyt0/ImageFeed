@@ -19,7 +19,7 @@ final class AuthViewController: UIViewController {
     }
 
     private func configureBackButton() {
-        let backwardImage = UIImage(named: Constants.Images.backward)
+        let backwardImage = UIImage(resource: .backward)
 
         navigationController?.navigationBar.backIndicatorImage = backwardImage
         navigationController?.navigationBar.backIndicatorTransitionMaskImage =
@@ -39,11 +39,16 @@ extension AuthViewController: WebViewViewControllerDelegate {
         _ vc: WebViewViewController,
         didAuthenticateWithCode code: String
     ) {
-        vc.dismiss(animated: true)
+        /// Здесь нельзя использовать `vc.dismiss(animated: true)` потому что
+        /// мы показываем `WebViewViewController` через сегвей с типом `Push` (тоесть пушим его на стек `NavigationController`), а `dismiss` применим только к вьюхам, показанным с типом `Modal`.
+        /// Если мы всеже применим тут `dismiss`, то получится так что удалится сам `AuthViewController` (и создастся заново).
+        vc.navigationController?.popViewController(animated: true)
 
-        oauth2Service.fetchOAuthToken(code: code) { result in
+        oauth2Service.fetchOAuthToken(code: code) { [weak self] result in
             switch result {
             case .success(let token):
+                guard let self = self else { return }
+
                 self.oauth2TokenStorage.token = token
                 self.delegate?.didAuthenticate(self)
             case .failure(let error):

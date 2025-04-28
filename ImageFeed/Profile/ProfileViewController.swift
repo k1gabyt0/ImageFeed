@@ -17,7 +17,7 @@ final class ProfileViewController: UIViewController {
         view.backgroundColor = .ypBlack
 
         profileImageView = UIImageView(
-            image: UIImage(named: Constants.Images.avatar)
+            image: UIImage(resource: .avatar)
         )
         nameLabel = UILabel()
         nicknameLabel = UILabel()
@@ -133,7 +133,7 @@ final class ProfileViewController: UIViewController {
     private func setupLogoutButton() -> [NSLayoutConstraint] {
         logoutButton.translatesAutoresizingMaskIntoConstraints = false
         logoutButton.setImage(
-            UIImage(named: Constants.Images.logout),
+            UIImage(resource: .exit),
             for: .normal
         )
         view.addSubview(logoutButton)

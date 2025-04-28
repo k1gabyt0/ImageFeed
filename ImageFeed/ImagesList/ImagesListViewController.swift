@@ -103,12 +103,11 @@ extension ImagesListViewController: UITableViewDataSource {
 
         cell.dateLabel.text = DateFormatter.russianDate.string(from: Date())
 
-        let likeImage =
-            if index.row % 2 == 0 {
-                UIImage(named: Constants.Images.likeActiveImageName)
-            } else {
-                UIImage(named: Constants.Images.likeInactiveImageName)
-            }
+        let likeImage = UIImage(
+            resource: index.row % 2 == 0
+                ? .likeActive
+                : .likeInactive
+        )
         cell.likeButton.setImage(likeImage, for: .normal)
     }
 }
