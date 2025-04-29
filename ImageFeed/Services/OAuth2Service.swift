@@ -1,31 +1,15 @@
 import Foundation
 
-struct OAuthTokenResponseBody: Decodable {
-    let accessToken: String
-    let tokenType: String
-    let scope: String
-    let createdAt: Date
-
-    static func decode(from data: Data) -> Result<OAuthTokenResponseBody, Error>
-    {
-        do {
-            let decoder = JSONDecoder()
-            decoder.keyDecodingStrategy = .convertFromSnakeCase
-            
-            let response = try decoder.decode(
-                OAuthTokenResponseBody.self,
-                from: data
-            )
-            return .success(response)
-        } catch {
-            print("Error: decode error")
-            return .failure(error)
-        }
-    }
+enum AuthServiceError: Error {
+    case invalidRequest
 }
 
 final class OAuth2Service {
     static let shared = OAuth2Service()
+
+    private let urlSession = URLSession.shared
+    private var task: URLSessionTask?
+    private var lastCode: String?
 
     private init() {}
 
@@ -33,13 +17,22 @@ final class OAuth2Service {
         code: String,
         completion: @escaping (Result<String, Error>) -> Void
     ) {
-        guard let request = makeOAuthTokenRequest(code: code) else {
+        assert(Thread.isMainThread)
+
+        guard lastCode != code else {
+            completion(.failure(AuthServiceError.invalidRequest))
             return
         }
 
-        let session = URLSession.shared
+        task?.cancel()
+        lastCode = code
 
-        let task = session.data(for: request) { result in
+        guard let request = makeOAuthTokenRequest(code: code) else {
+            completion(.failure(AuthServiceError.invalidRequest))
+            return
+        }
+
+        let task = urlSession.data(for: request) { [weak self] result in
             switch result {
             case .success(let data):
                 switch OAuthTokenResponseBody.decode(from: data) {
@@ -51,7 +44,11 @@ final class OAuth2Service {
             case .failure(let error):
                 completion(.failure(error))
             }
+            
+            self?.task = nil
+            self?.lastCode = nil
         }
+        self.task = task
         task.resume()
     }
 
@@ -83,5 +80,29 @@ final class OAuth2Service {
         var request = URLRequest(url: url)
         request.httpMethod = Constants.HTTPMethod.post.rawValue
         return request
+    }
+}
+
+struct OAuthTokenResponseBody: Decodable {
+    let accessToken: String
+    let tokenType: String
+    let scope: String
+    let createdAt: Date
+
+    static func decode(from data: Data) -> Result<OAuthTokenResponseBody, Error>
+    {
+        do {
+            let decoder = JSONDecoder()
+            decoder.keyDecodingStrategy = .convertFromSnakeCase
+
+            let response = try decoder.decode(
+                OAuthTokenResponseBody.self,
+                from: data
+            )
+            return .success(response)
+        } catch {
+            print("Error: decode error")
+            return .failure(error)
+        }
     }
 }
