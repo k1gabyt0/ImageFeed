@@ -1,5 +1,4 @@
 import UIKit
-import ProgressHUD
 
 protocol AuthViewControllerDelegate: AnyObject {
     func didAuthenticate(_ vc: AuthViewController)
@@ -45,10 +44,10 @@ extension AuthViewController: WebViewViewControllerDelegate {
         /// Если мы всеже применим тут `dismiss`, то получится так что удалится сам `AuthViewController` (и создастся заново).
         vc.navigationController?.popViewController(animated: true)
 
-        ProgressHUD.animate()
+        UIBlockingProgressHUD.show()
         oauth2Service.fetchOAuthToken(code: code) { [weak self] result in
-            ProgressHUD.dismiss()
-            
+            UIBlockingProgressHUD.dismiss()
+
             switch result {
             case .success(let token):
                 guard let self = self else { return }
