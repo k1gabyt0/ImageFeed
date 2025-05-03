@@ -2,18 +2,19 @@ import UIKit
 
 final class SplashViewController: UIViewController {
     private let authStorage = OAuth2TokenStorage.shared
+    private let profileService = ProfileService.shared
 
     private let showAuthFlowSegueId = "ShowAuthFlow"
 
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
 
-        guard authStorage.token != nil else {
+        guard let token = authStorage.token else {
             performSegue(withIdentifier: showAuthFlowSegueId, sender: nil)
             return
         }
 
-        showMainFlow()
+        fetchProfile(token)
     }
 
     private func showMainFlow() {
@@ -33,7 +34,11 @@ extension SplashViewController: AuthViewControllerDelegate {
     func didAuthenticate(_ vc: AuthViewController) {
         vc.dismiss(animated: true)
 
-        showMainFlow()
+        guard let token = self.authStorage.token else {
+            return
+        }
+
+        fetchProfile(token)
     }
 
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
@@ -51,6 +56,28 @@ extension SplashViewController: AuthViewControllerDelegate {
             viewController.delegate = self
         } else {
             super.prepare(for: segue, sender: sender)
+        }
+    }
+
+    private func fetchProfile(_ token: String) {
+        UIBlockingProgressHUD.show()
+        profileService.fetchProfile(token) { [weak self] result in
+            UIBlockingProgressHUD.dismiss()
+
+            guard let self = self else { return }
+
+            switch result {
+            case .success:
+                self.showMainFlow()
+            case .failure:
+                let alert = UIAlertController(
+                    title: "Не удалось получить профиль",
+                    message: "Попробуйте еще раз",
+                    preferredStyle: .alert
+                )
+                self.present(alert, animated: true, completion: nil)
+                break
+            }
         }
     }
 }

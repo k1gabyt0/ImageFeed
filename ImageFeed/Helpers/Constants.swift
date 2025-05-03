@@ -7,7 +7,7 @@ enum Constants {
         static let redirectURI = "urn:ietf:wg:oauth:2.0:oob"
 
         static let accessScope = "public+read_user+write_likes"
-        static let defaultBaseURL = URL(string: "https://api.unsplash.com")
+        static let defaultBaseURL = "https://api.unsplash.com"
         static let authorizeURL = "https://unsplash.com/oauth/authorize"
         static let tokenURL = "https://unsplash.com/oauth/token"
 
@@ -19,5 +19,9 @@ enum Constants {
     enum HTTPMethod: String {
         case get = "GET"
         case post = "POST"
+    }
+    
+    enum HTTPHeader: String {
+        case authorization = "Authorization"
     }
 }

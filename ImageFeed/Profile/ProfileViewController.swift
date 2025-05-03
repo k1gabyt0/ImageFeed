@@ -6,6 +6,8 @@ final class ProfileViewController: UIViewController {
     private var nicknameLabel: UILabel!
     private var descriptionLabel: UILabel!
     private var logoutButton: UIButton!
+    
+    private var profileData = ProfileService.shared.profile
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -65,7 +67,7 @@ final class ProfileViewController: UIViewController {
         nameLabel.translatesAutoresizingMaskIntoConstraints = false
         nameLabel.font = .systemFont(ofSize: 23, weight: .bold)
         nameLabel.textColor = .ypWhite
-        nameLabel.text = "Екатерина Новикова"
+        nameLabel.text = profileData?.name
         view.addSubview(nameLabel)
 
         let safeArea = view.safeAreaLayoutGuide
@@ -88,7 +90,7 @@ final class ProfileViewController: UIViewController {
         nicknameLabel.translatesAutoresizingMaskIntoConstraints = false
         nicknameLabel.font = .systemFont(ofSize: 13, weight: .regular)
         nicknameLabel.textColor = .ypGray
-        nicknameLabel.text = "@ekaterina_nov"
+        nicknameLabel.text = profileData?.loginName
         view.addSubview(nicknameLabel)
 
         let safeArea = view.safeAreaLayoutGuide
@@ -111,7 +113,7 @@ final class ProfileViewController: UIViewController {
         descriptionLabel.translatesAutoresizingMaskIntoConstraints = false
         descriptionLabel.font = .systemFont(ofSize: 13, weight: .regular)
         descriptionLabel.textColor = .ypWhite
-        descriptionLabel.text = "Hello, world!"
+        descriptionLabel.text = profileData?.bio
         view.addSubview(descriptionLabel)
 
         let safeArea = view.safeAreaLayoutGuide
