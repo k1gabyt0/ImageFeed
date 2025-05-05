@@ -55,7 +55,19 @@ extension AuthViewController: WebViewViewControllerDelegate {
                 self.oauth2TokenStorage.token = token
                 self.delegate?.didAuthenticate(self)
             case .failure(let error):
-                print(error)
+                let alert = UIAlertController(
+                    title: "Что-то пошло не так",
+                    message: "Не удалось войти в систему",
+                    preferredStyle: .alert
+                )
+                alert
+                    .addAction(
+                        UIAlertAction(title: "Oк", style: .default, handler: { _ in
+                            alert.dismiss(animated: true)
+                        })
+                    )
+                
+                self?.present(alert, animated: true, completion: nil)
             }
         }
     }

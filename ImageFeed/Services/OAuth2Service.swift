@@ -32,19 +32,16 @@ final class OAuth2Service {
             return
         }
 
-        let task = urlSession.data(for: request) { [weak self] result in
+        let task = urlSession.objectTask(for: request) {
+            [weak self] (result: Result<OAuthTokenResponseBody, Error>) in
+
             switch result {
-            case .success(let data):
-                switch OAuthTokenResponseBody.decode(from: data) {
-                case .success(let responseBody):
-                    completion(.success(responseBody.accessToken))
-                case .failure(let error):
-                    completion(.failure(error))
-                }
+            case .success(let dto):
+                completion(.success(dto.accessToken))
             case .failure(let error):
                 completion(.failure(error))
             }
-            
+
             self?.task = nil
             self?.lastCode = nil
         }
@@ -89,20 +86,10 @@ struct OAuthTokenResponseBody: Decodable {
     let scope: String
     let createdAt: Date
 
-    static func decode(from data: Data) -> Result<OAuthTokenResponseBody, Error>
-    {
-        do {
-            let decoder = JSONDecoder()
-            decoder.keyDecodingStrategy = .convertFromSnakeCase
-
-            let response = try decoder.decode(
-                OAuthTokenResponseBody.self,
-                from: data
-            )
-            return .success(response)
-        } catch {
-            print("Error: decode error")
-            return .failure(error)
-        }
+    private enum CodingKeys: String, CodingKey {
+        case accessToken = "access_token"
+        case tokenType = "token_type"
+        case scope
+        case createdAt = "created_at"
     }
 }

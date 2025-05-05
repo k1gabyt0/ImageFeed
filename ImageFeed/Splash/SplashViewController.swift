@@ -3,6 +3,7 @@ import UIKit
 final class SplashViewController: UIViewController {
     private let authStorage = OAuth2TokenStorage.shared
     private let profileService = ProfileService.shared
+    private let profileImageService = ProfileImageService.shared
 
     private let showAuthFlowSegueId = "ShowAuthFlow"
 
@@ -61,18 +62,23 @@ extension SplashViewController: AuthViewControllerDelegate {
 
     private func fetchProfile(_ token: String) {
         UIBlockingProgressHUD.show()
+
         profileService.fetchProfile(token) { [weak self] result in
             UIBlockingProgressHUD.dismiss()
 
             guard let self = self else { return }
 
             switch result {
-            case .success:
+            case .success(let profile):
+                profileImageService
+                    .fetchProfileImageURL(for: profile.username, with: token) {
+                        _ in
+                    }
                 self.showMainFlow()
-            case .failure:
+            case .failure(let error):
                 let alert = UIAlertController(
                     title: "Не удалось получить профиль",
-                    message: "Попробуйте еще раз",
+                    message: "Ошибка: \(error.localizedDescription)",
                     preferredStyle: .alert
                 )
                 self.present(alert, animated: true, completion: nil)

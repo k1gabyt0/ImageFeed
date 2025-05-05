@@ -26,17 +26,14 @@ final class ProfileService {
             return
         }
 
-        let task = urlSession.data(for: request) { [weak self] result in
+        let task = urlSession.objectTask(for: request) {
+            [weak self] (result: Result<GetProfileResponse, Error>) in
+
             switch result {
-            case .success(let data):
-                switch GetProfileResponse.decode(from: data) {
-                case .success(let dto):
-                    let domain = dto.toDomain()
-                    self?.profile = domain
-                    completion(.success(domain))
-                case .failure(let error):
-                    completion(.failure(error))
-                }
+            case .success(let dto):
+                let domain = dto.toDomain()
+                self?.profile = domain
+                completion(.success(domain))
             case .failure(let error):
                 completion(.failure(error))
             }
@@ -100,19 +97,10 @@ struct GetProfileResponse: Codable {
     let lastName: String
     let bio: String?
 
-    static func decode(from data: Data) -> Result<GetProfileResponse, Error> {
-        do {
-            let decoder = JSONDecoder()
-            decoder.keyDecodingStrategy = .convertFromSnakeCase
-
-            let response = try decoder.decode(
-                GetProfileResponse.self,
-                from: data
-            )
-            return .success(response)
-        } catch {
-            print("Error: decode error")
-            return .failure(error)
-        }
+    private enum CodingKeys: String, CodingKey {
+        case username
+        case firstName = "first_name"
+        case lastName = "last_name"
+        case bio
     }
 }
