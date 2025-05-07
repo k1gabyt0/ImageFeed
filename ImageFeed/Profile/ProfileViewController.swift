@@ -1,3 +1,4 @@
+import Kingfisher
 import UIKit
 
 final class ProfileViewController: UIViewController {
@@ -32,15 +33,41 @@ final class ProfileViewController: UIViewController {
             let profileImageURL = ProfileImageService.shared.avatarURL,
             let url = URL(string: profileImageURL)
         else { return }
-        // TODO: [Sprint 11] Обновить аватар, используя Kingfisher
-        print("Avatar url: \(url)")
+
+        profileImageView.kf.indicatorType = .activity
+        profileImageView.kf
+            .setImage(
+                with: changeImageSize(in: url, width: 70, height: 70),
+                placeholder: UIImage(resource: .stub)
+            )
+    }
+
+    private func changeImageSize(in url: URL, width: Int, height: Int) -> URL {
+        guard
+            var components = URLComponents(
+                url: url,
+                resolvingAgainstBaseURL: true
+            )
+        else {
+            return url
+        }
+
+        components.queryItems = [
+            URLQueryItem(name: "w", value: String(width)),
+            URLQueryItem(name: "h", value: String(height)),
+        ]
+        guard let updatedUrl = components.url else {
+            return url
+        }
+
+        return updatedUrl
     }
 
     private func setupUI() {
         view.backgroundColor = .ypBlack
 
         profileImageView = UIImageView(
-            image: UIImage(resource: .avatar)
+            image: UIImage(resource: .stub)
         )
         nameLabel = UILabel()
         nicknameLabel = UILabel()
@@ -64,6 +91,7 @@ final class ProfileViewController: UIViewController {
 
     private func setupProfileImage() -> [NSLayoutConstraint] {
         profileImageView.translatesAutoresizingMaskIntoConstraints = false
+        profileImageView.setRounded()
         view.addSubview(profileImageView)
 
         let safeArea = view.safeAreaLayoutGuide
