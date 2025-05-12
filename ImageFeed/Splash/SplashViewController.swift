@@ -5,13 +5,13 @@ final class SplashViewController: UIViewController {
     private let profileService = ProfileService.shared
     private let profileImageService = ProfileImageService.shared
 
-    private let showAuthFlowSegueId = "ShowAuthFlow"
+    private var logoImageView: UIImageView!
 
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
 
         guard let token = authStorage.token else {
-            performSegue(withIdentifier: showAuthFlowSegueId, sender: nil)
+            showAuthFlow()
             return
         }
 
@@ -29,6 +29,45 @@ final class SplashViewController: UIViewController {
 
         window.rootViewController = tabBarController
     }
+
+    private func showAuthFlow() {
+        let authController =
+            UIStoryboard(name: "Main", bundle: .main)
+            .instantiateViewController(
+                withIdentifier: "AuthViewController"
+            ) as? AuthViewController
+        guard let authController = authController else {
+            return
+        }
+
+        authController.delegate = self
+        authController.modalPresentationStyle = .fullScreen
+        present(authController, animated: true)
+    }
+
+    private func setupUI() {
+        view.backgroundColor = .ypBlack
+
+        logoImageView = UIImageView(
+            image: UIImage(resource: .logo)
+        )
+
+        let logoImageViewConstraints = setupLogoImage()
+
+        NSLayoutConstraint.activate(
+            logoImageViewConstraints
+        )
+    }
+
+    private func setupLogoImage() -> [NSLayoutConstraint] {
+        logoImageView.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(logoImageView)
+
+        return [
+            logoImageView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            logoImageView.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+        ]
+    }
 }
 
 extension SplashViewController: AuthViewControllerDelegate {
@@ -40,24 +79,6 @@ extension SplashViewController: AuthViewControllerDelegate {
         }
 
         fetchProfile(token)
-    }
-
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        if segue.identifier == showAuthFlowSegueId {
-            guard
-                let navigationController = segue.destination
-                    as? UINavigationController,
-                let viewController = navigationController.viewControllers.first
-                    as? AuthViewController
-            else {
-                print("Failed to prepare segue for \(showAuthFlowSegueId)")
-                return
-            }
-
-            viewController.delegate = self
-        } else {
-            super.prepare(for: segue, sender: sender)
-        }
     }
 
     private func fetchProfile(_ token: String) {
