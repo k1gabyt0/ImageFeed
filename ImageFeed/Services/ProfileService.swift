@@ -2,6 +2,7 @@ import Foundation
 
 enum ProfileServiceError: Error {
     case invalidRequest
+    case requestIsAlreadyRunning
 }
 
 final class ProfileService {
@@ -11,7 +12,7 @@ final class ProfileService {
 
     private let currentUserInfoPath = "me"
     private let urlSession = URLSession.shared
-    private var task: URLSessionTask?
+    private var currentTask: URLSessionTask?
 
     private init() {}
 
@@ -19,9 +20,16 @@ final class ProfileService {
         _ token: String,
         completion: @escaping (Result<Profile, Error>) -> Void
     ) {
-        task?.cancel()
+        guard currentTask == nil else {
+            print(
+                "[ProfileService] fetchProfile: request is already running, failing this one to prevent race conditions"
+            )
+            completion(.failure(ProfileServiceError.requestIsAlreadyRunning))
+            return
+        }
 
         guard let request = makeGetProfileRequest(with: token) else {
+            print("[ProfileService] fetchProfile: can't create request")
             completion(.failure(ProfileServiceError.invalidRequest))
             return
         }
@@ -35,12 +43,13 @@ final class ProfileService {
                 self?.profile = domain
                 completion(.success(domain))
             case .failure(let error):
+                print("[ProfileService] fetchProfile: \(error)")
                 completion(.failure(error))
             }
 
-            self?.task = nil
+            self?.currentTask = nil
         }
-        self.task = task
+        self.currentTask = task
         task.resume()
     }
 
@@ -67,11 +76,11 @@ final class ProfileService {
 struct Profile {
     let username: String
     let firstName: String
-    let lastName: String
+    let lastName: String?
     let bio: String?
 
-    var name: String {
-        "\(firstName) \(lastName)"
+    var name: String? {
+        "\(firstName) \(lastName ?? "")"
     }
     var loginName: String {
         "@\(username)"
@@ -94,7 +103,7 @@ extension GetProfileResponse {
 struct GetProfileResponse: Codable {
     let username: String
     let firstName: String
-    let lastName: String
+    let lastName: String?
     let bio: String?
 
     private enum CodingKeys: String, CodingKey {

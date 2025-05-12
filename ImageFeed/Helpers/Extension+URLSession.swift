@@ -27,15 +27,18 @@ extension URLSession {
                     if 200..<300 ~= statusCode {
                         fulfillCompletionOnTheMainThread(.success(data))
                     } else {
+                        print("Network error: wrong status code \(statusCode)")
                         fulfillCompletionOnTheMainThread(
                             .failure(NetworkError.httpStatusCode(statusCode))
                         )
                     }
                 } else if let error = error {
+                    print("Network error: \(error)")
                     fulfillCompletionOnTheMainThread(
                         .failure(NetworkError.urlRequestError(error))
                     )
                 } else {
+                    print("Something went wrong with URLSession")
                     fulfillCompletionOnTheMainThread(
                         .failure(NetworkError.urlSessionError)
                     )
@@ -65,7 +68,7 @@ extension URLSession {
                     completion(.failure(error))
                 }
             case .failure(let error):
-                print("Network error: \(error.localizedDescription)")
+                print("Network error: \(error)")
                 completion(.failure(error))
             }
         }

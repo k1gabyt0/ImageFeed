@@ -41,8 +41,20 @@ final class SplashViewController: UIViewController {
         }
 
         authController.delegate = self
-        authController.modalPresentationStyle = .fullScreen
-        present(authController, animated: true)
+
+        let navigationViewController =
+            UIStoryboard(name: "Main", bundle: .main)
+            .instantiateViewController(
+                withIdentifier: "NavigationViewController"
+            ) as? UINavigationController
+        guard let navigationViewController = navigationViewController else {
+            return
+        }
+
+        navigationViewController.viewControllers = [authController]
+
+        navigationViewController.modalPresentationStyle = .fullScreen
+        present(navigationViewController, animated: true)
     }
 
     private func setupUI() {
@@ -96,13 +108,7 @@ extension SplashViewController: AuthViewControllerDelegate {
                         _ in
                     }
                 self.showMainFlow()
-            case .failure(let error):
-                let alert = UIAlertController(
-                    title: "Не удалось получить профиль",
-                    message: "Ошибка: \(error.localizedDescription)",
-                    preferredStyle: .alert
-                )
-                self.present(alert, animated: true, completion: nil)
+            case .failure:
                 break
             }
         }

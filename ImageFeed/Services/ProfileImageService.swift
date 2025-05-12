@@ -22,6 +22,7 @@ final class ProfileImageService {
         task?.cancel()
 
         guard let request = makeRequest(with: token, for: username) else {
+            print("[ProfileImageService] fetchProfileImageURL: can't create request for username: \(username)")
             completion(.failure(ProfileServiceError.invalidRequest))
             return
         }
@@ -41,6 +42,7 @@ final class ProfileImageService {
                         userInfo: ["URL": avatarUrl]
                     )
             case .failure(let error):
+                print("[ProfileImageService] fetchProfileImageURL: \(error)")
                 completion(.failure(error))
             }
 

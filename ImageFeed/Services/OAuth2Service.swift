@@ -9,7 +9,7 @@ final class OAuth2Service {
 
     private let urlSession = URLSession.shared
     private var task: URLSessionTask?
-    private var lastCode: String?
+    private var currentCode: String?
 
     private init() {}
 
@@ -17,17 +17,17 @@ final class OAuth2Service {
         code: String,
         completion: @escaping (Result<String, Error>) -> Void
     ) {
-        assert(Thread.isMainThread)
-
-        guard lastCode != code else {
+        guard currentCode != code else {
+            print("[Oauth2Service] fetchOAuthToken: code already requested")
             completion(.failure(AuthServiceError.invalidRequest))
             return
         }
 
         task?.cancel()
-        lastCode = code
+        currentCode = code
 
         guard let request = makeOAuthTokenRequest(code: code) else {
+            print("[Oauth2Service] fetchOAuthToken: can't create request for code: \(code)")
             completion(.failure(AuthServiceError.invalidRequest))
             return
         }
@@ -39,11 +39,12 @@ final class OAuth2Service {
             case .success(let dto):
                 completion(.success(dto.accessToken))
             case .failure(let error):
+                print("[Oauth2Service] fetchOAuthToken: \(error)")
                 completion(.failure(error))
             }
 
             self?.task = nil
-            self?.lastCode = nil
+            self?.currentCode = nil
         }
         self.task = task
         task.resume()
