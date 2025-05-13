@@ -2,11 +2,11 @@ import Kingfisher
 import UIKit
 
 final class ProfileViewController: UIViewController {
-    private var profileImageView: UIImageView!
-    private var nameLabel: UILabel!
-    private var nicknameLabel: UILabel!
-    private var descriptionLabel: UILabel!
-    private var logoutButton: UIButton!
+    private var profileImageView: UIImageView?
+    private var nameLabel: UILabel?
+    private var nicknameLabel: UILabel?
+    private var descriptionLabel: UILabel?
+    private var logoutButton: UIButton?
 
     private var profileData = ProfileService.shared.profile
     private var profileImageServiceObserver: NSObjectProtocol?
@@ -31,7 +31,8 @@ final class ProfileViewController: UIViewController {
     private func updateAvatar() {
         guard
             let profileImageURL = ProfileImageService.shared.avatarURL,
-            let url = URL(string: profileImageURL)
+            let url = URL(string: profileImageURL),
+            let profileImageView
         else { return }
 
         profileImageView.kf.indicatorType = .activity
@@ -90,6 +91,10 @@ final class ProfileViewController: UIViewController {
     }
 
     private func setupProfileImage() -> [NSLayoutConstraint] {
+        guard let profileImageView else {
+            return []
+        }
+
         profileImageView.translatesAutoresizingMaskIntoConstraints = false
         profileImageView.setRounded()
         view.addSubview(profileImageView)
@@ -113,6 +118,10 @@ final class ProfileViewController: UIViewController {
     }
 
     private func setupNameLabel() -> [NSLayoutConstraint] {
+        guard let nameLabel, let profileImageView else {
+            return []
+        }
+
         nameLabel.translatesAutoresizingMaskIntoConstraints = false
         nameLabel.font = .systemFont(ofSize: 23, weight: .bold)
         nameLabel.textColor = .ypWhite
@@ -136,6 +145,10 @@ final class ProfileViewController: UIViewController {
     }
 
     private func setupNicknameLabel() -> [NSLayoutConstraint] {
+        guard let nicknameLabel, let nameLabel else {
+            return []
+        }
+
         nicknameLabel.translatesAutoresizingMaskIntoConstraints = false
         nicknameLabel.font = .systemFont(ofSize: 13, weight: .regular)
         nicknameLabel.textColor = .ypGray
@@ -159,6 +172,10 @@ final class ProfileViewController: UIViewController {
     }
 
     private func setupDescriptionLabel() -> [NSLayoutConstraint] {
+        guard let descriptionLabel, let nicknameLabel else {
+            return []
+        }
+        
         descriptionLabel.translatesAutoresizingMaskIntoConstraints = false
         descriptionLabel.font = .systemFont(ofSize: 13, weight: .regular)
         descriptionLabel.textColor = .ypWhite
@@ -182,6 +199,10 @@ final class ProfileViewController: UIViewController {
     }
 
     private func setupLogoutButton() -> [NSLayoutConstraint] {
+        guard let logoutButton, let profileImageView else {
+            return []
+        }
+        
         logoutButton.translatesAutoresizingMaskIntoConstraints = false
         logoutButton.setImage(
             UIImage(resource: .exit),

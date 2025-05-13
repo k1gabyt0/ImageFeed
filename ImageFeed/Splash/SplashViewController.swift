@@ -5,7 +5,7 @@ final class SplashViewController: UIViewController {
     private let profileService = ProfileService.shared
     private let profileImageService = ProfileImageService.shared
 
-    private var logoImageView: UIImageView!
+    private var logoImageView: UIImageView?
 
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
@@ -72,6 +72,10 @@ final class SplashViewController: UIViewController {
     }
 
     private func setupLogoImage() -> [NSLayoutConstraint] {
+        guard let logoImageView else {
+            return []
+        }
+        
         logoImageView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(logoImageView)
 
