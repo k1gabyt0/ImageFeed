@@ -44,15 +44,30 @@ extension AuthViewController: WebViewViewControllerDelegate {
         /// Если мы всеже применим тут `dismiss`, то получится так что удалится сам `AuthViewController` (и создастся заново).
         vc.navigationController?.popViewController(animated: true)
 
+        UIBlockingProgressHUD.show()
         oauth2Service.fetchOAuthToken(code: code) { [weak self] result in
+            UIBlockingProgressHUD.dismiss()
+
             switch result {
             case .success(let token):
                 guard let self = self else { return }
 
                 self.oauth2TokenStorage.token = token
                 self.delegate?.didAuthenticate(self)
-            case .failure(let error):
-                print(error)
+            case .failure:
+                let alert = UIAlertController(
+                    title: "Что-то пошло не так",
+                    message: "Не удалось войти в систему",
+                    preferredStyle: .alert
+                )
+                alert
+                    .addAction(
+                        UIAlertAction(title: "Oк", style: .default, handler: { _ in
+                            alert.dismiss(animated: true)
+                        })
+                    )
+                
+                self?.present(alert, animated: true, completion: nil)
             }
         }
     }

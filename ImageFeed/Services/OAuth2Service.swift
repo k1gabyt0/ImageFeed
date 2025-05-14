@@ -1,31 +1,15 @@
 import Foundation
 
-struct OAuthTokenResponseBody: Decodable {
-    let accessToken: String
-    let tokenType: String
-    let scope: String
-    let createdAt: Date
-
-    static func decode(from data: Data) -> Result<OAuthTokenResponseBody, Error>
-    {
-        do {
-            let decoder = JSONDecoder()
-            decoder.keyDecodingStrategy = .convertFromSnakeCase
-            
-            let response = try decoder.decode(
-                OAuthTokenResponseBody.self,
-                from: data
-            )
-            return .success(response)
-        } catch {
-            print("Error: decode error")
-            return .failure(error)
-        }
-    }
+enum AuthServiceError: Error {
+    case invalidRequest
 }
 
 final class OAuth2Service {
     static let shared = OAuth2Service()
+
+    private let urlSession = URLSession.shared
+    private var task: URLSessionTask?
+    private var currentCode: String?
 
     private init() {}
 
@@ -33,25 +17,36 @@ final class OAuth2Service {
         code: String,
         completion: @escaping (Result<String, Error>) -> Void
     ) {
-        guard let request = makeOAuthTokenRequest(code: code) else {
+        guard currentCode != code else {
+            print("[Oauth2Service] fetchOAuthToken: code already requested")
+            completion(.failure(AuthServiceError.invalidRequest))
             return
         }
 
-        let session = URLSession.shared
+        task?.cancel()
+        currentCode = code
 
-        let task = session.data(for: request) { result in
+        guard let request = makeOAuthTokenRequest(code: code) else {
+            print("[Oauth2Service] fetchOAuthToken: can't create request for code: \(code)")
+            completion(.failure(AuthServiceError.invalidRequest))
+            return
+        }
+
+        let task = urlSession.objectTask(for: request) {
+            [weak self] (result: Result<OAuthTokenResponseBody, Error>) in
+
             switch result {
-            case .success(let data):
-                switch OAuthTokenResponseBody.decode(from: data) {
-                case .success(let responseBody):
-                    completion(.success(responseBody.accessToken))
-                case .failure(let error):
-                    completion(.failure(error))
-                }
+            case .success(let dto):
+                completion(.success(dto.accessToken))
             case .failure(let error):
+                print("[Oauth2Service] fetchOAuthToken: \(error)")
                 completion(.failure(error))
             }
+
+            self?.task = nil
+            self?.currentCode = nil
         }
+        self.task = task
         task.resume()
     }
 
@@ -83,5 +78,19 @@ final class OAuth2Service {
         var request = URLRequest(url: url)
         request.httpMethod = Constants.HTTPMethod.post.rawValue
         return request
+    }
+}
+
+struct OAuthTokenResponseBody: Decodable {
+    let accessToken: String
+    let tokenType: String
+    let scope: String
+    let createdAt: Date
+
+    private enum CodingKeys: String, CodingKey {
+        case accessToken = "access_token"
+        case tokenType = "token_type"
+        case scope
+        case createdAt = "created_at"
     }
 }

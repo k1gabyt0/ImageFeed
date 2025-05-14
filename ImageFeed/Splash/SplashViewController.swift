@@ -2,18 +2,20 @@ import UIKit
 
 final class SplashViewController: UIViewController {
     private let authStorage = OAuth2TokenStorage.shared
+    private let profileService = ProfileService.shared
+    private let profileImageService = ProfileImageService.shared
 
-    private let showAuthFlowSegueId = "ShowAuthFlow"
+    private var logoImageView: UIImageView?
 
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
 
-        guard authStorage.token != nil else {
-            performSegue(withIdentifier: showAuthFlowSegueId, sender: nil)
+        guard let token = authStorage.token else {
+            showAuthFlow()
             return
         }
 
-        showMainFlow()
+        fetchProfile(token)
     }
 
     private func showMainFlow() {
@@ -27,30 +29,92 @@ final class SplashViewController: UIViewController {
 
         window.rootViewController = tabBarController
     }
+
+    private func showAuthFlow() {
+        let authController =
+            UIStoryboard(name: "Main", bundle: .main)
+            .instantiateViewController(
+                withIdentifier: "AuthViewController"
+            ) as? AuthViewController
+        guard let authController = authController else {
+            return
+        }
+
+        authController.delegate = self
+
+        let navigationViewController =
+            UIStoryboard(name: "Main", bundle: .main)
+            .instantiateViewController(
+                withIdentifier: "NavigationViewController"
+            ) as? UINavigationController
+        guard let navigationViewController = navigationViewController else {
+            return
+        }
+
+        navigationViewController.viewControllers = [authController]
+
+        navigationViewController.modalPresentationStyle = .fullScreen
+        present(navigationViewController, animated: true)
+    }
+
+    private func setupUI() {
+        view.backgroundColor = .ypBlack
+
+        logoImageView = UIImageView(
+            image: UIImage(resource: .logo)
+        )
+
+        let logoImageViewConstraints = setupLogoImage()
+
+        NSLayoutConstraint.activate(
+            logoImageViewConstraints
+        )
+    }
+
+    private func setupLogoImage() -> [NSLayoutConstraint] {
+        guard let logoImageView else {
+            return []
+        }
+        
+        logoImageView.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(logoImageView)
+
+        return [
+            logoImageView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            logoImageView.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+        ]
+    }
 }
 
 extension SplashViewController: AuthViewControllerDelegate {
     func didAuthenticate(_ vc: AuthViewController) {
         vc.dismiss(animated: true)
 
-        showMainFlow()
+        guard let token = self.authStorage.token else {
+            return
+        }
+
+        fetchProfile(token)
     }
 
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        if segue.identifier == showAuthFlowSegueId {
-            guard
-                let navigationController = segue.destination
-                    as? UINavigationController,
-                let viewController = navigationController.viewControllers.first
-                    as? AuthViewController
-            else {
-                print("Failed to prepare segue for \(showAuthFlowSegueId)")
-                return
-            }
+    private func fetchProfile(_ token: String) {
+        UIBlockingProgressHUD.show()
 
-            viewController.delegate = self
-        } else {
-            super.prepare(for: segue, sender: sender)
+        profileService.fetchProfile(token) { [weak self] result in
+            UIBlockingProgressHUD.dismiss()
+
+            guard let self = self else { return }
+
+            switch result {
+            case .success(let profile):
+                profileImageService
+                    .fetchProfileImageURL(for: profile.username, with: token) {
+                        _ in
+                    }
+                self.showMainFlow()
+            case .failure:
+                break
+            }
         }
     }
 }
