@@ -10,7 +10,7 @@ final class ProfileImageService {
 
     private let userInfoPath = "users"
     private let urlSession = URLSession.shared
-    private var task: URLSessionTask?
+    private var currentTask: URLSessionTask?
 
     private init() {}
 
@@ -19,7 +19,7 @@ final class ProfileImageService {
         with token: String,
         _ completion: @escaping (Result<String, Error>) -> Void
     ) {
-        task?.cancel()
+        currentTask?.cancel()
 
         guard let request = makeRequest(with: token, for: username) else {
             print("[ProfileImageService] fetchProfileImageURL: can't create request for username: \(username)")
@@ -46,9 +46,9 @@ final class ProfileImageService {
                 completion(.failure(error))
             }
 
-            self?.task = nil
+            self?.currentTask = nil
         }
-        self.task = task
+        self.currentTask = task
         task.resume()
     }
 
