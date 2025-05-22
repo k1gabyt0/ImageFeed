@@ -19,6 +19,7 @@ enum Constants {
     enum HTTPMethod: String {
         case get = "GET"
         case post = "POST"
+        case delete = "DELETE"
     }
     
     enum HTTPHeader: String {

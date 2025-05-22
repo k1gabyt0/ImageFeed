@@ -25,7 +25,7 @@ final class ImagesListService {
         let nextPage = (lastLoadedPage ?? 0) + 1
         let request = makeRequest(
             for: nextPage,
-            // TODO: Передавать в функцию
+            // TODO: Передавать в функцию?
             with: OAuth2TokenStorage.shared.token
         )
         guard let request else {
@@ -79,6 +79,81 @@ final class ImagesListService {
     }
 }
 
+// MARK: Likes
+
+enum LikesError: Error {
+    case wrongRequest
+    case wrongResponse
+}
+
+extension ImagesListService {
+    func changeLike(
+        photoId: String,
+        isLike: Bool,
+        _ completion: @escaping (Result<Void, Error>) -> Void
+    ) {
+        let request = makeRequest(
+            forPhoto: photoId,
+            is: isLike,
+            // TODO: Передавать в функцию?
+            with: OAuth2TokenStorage.shared.token
+        )
+        guard let request else {
+            print("[ImagesListService] changeLike: can't create request")
+            completion(.failure(LikesError.wrongRequest))
+            return
+        }
+
+        let task = urlSession.objectTask(for: request) {
+            [weak self] (result: Result<LikeResponse, Error>) in
+            switch result {
+            case .success(let likeResponse):
+                if let index = self?.photos.firstIndex(
+                    where: { $0.id == photoId })
+                {
+                    self?.photos[index].isLiked = isLike
+                }
+
+                completion(.success(()))
+            case .failure(let error):
+                print("[ImagesListService] changeLike: \(error)")
+                completion(.failure(error))
+            }
+        }
+        task.resume()
+    }
+
+    private func makeRequest(
+        forPhoto id: String,
+        is like: Bool,
+        with token: String?
+    )
+        -> URLRequest?
+    {
+        guard let token else {
+            return nil
+        }
+
+        var urlComponents = URLComponents(
+            string: Constants.Unsplash.defaultBaseURL
+        )
+        urlComponents?.path = "/photos/\(id)/like"
+        guard let url = urlComponents?.url else {
+            return nil
+        }
+
+        var request = URLRequest(url: url)
+        request.httpMethod =
+            if like {
+                Constants.HTTPMethod.post.rawValue
+            } else {
+                Constants.HTTPMethod.delete.rawValue
+            }
+        request.addAccessToken(token)
+        return request
+    }
+}
+
 // MARK: Domain
 
 struct Photo {
@@ -87,10 +162,14 @@ struct Photo {
     let welcomeDescription: String?
     let thumbImageURL: String
     let largeImageURL: String
-    let isLiked: Bool
+    var isLiked: Bool
 }
 
 // MARK: DTO
+
+struct LikeResponse: Codable {
+    let photo: PhotoResponse
+}
 
 typealias PhotosResponse = [PhotoResponse]
 
