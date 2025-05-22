@@ -1,4 +1,5 @@
 import Foundation
+import UIKit
 
 final class ImagesListService {
     static let shared = ImagesListService()
@@ -36,6 +37,7 @@ final class ImagesListService {
             switch result {
             case .success(let dto):
                 self?.photos = dto.toModel()
+                self?.lastLoadedPage = nextPage
 
                 NotificationCenter.default.post(
                     name: ImagesListService.didChangeNotification,
@@ -76,6 +78,8 @@ final class ImagesListService {
         return request
     }
 }
+
+// MARK: Domain
 
 struct Photo {
     let id: String

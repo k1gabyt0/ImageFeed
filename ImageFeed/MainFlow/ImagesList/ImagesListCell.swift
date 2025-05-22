@@ -6,4 +6,10 @@ final class ImagesListCell: UITableViewCell {
     @IBOutlet var dateLabel: UILabel!
     @IBOutlet var likeButton: UIButton!
     @IBOutlet var backgroundImageView: UIImageView!
+
+    override func prepareForReuse() {
+        super.prepareForReuse()
+
+        backgroundImageView.kf.cancelDownloadTask()
+    }
 }
