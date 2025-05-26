@@ -38,12 +38,11 @@ final class ImagesListViewController: UIViewController {
                 let viewController = segue.destination
                     as? SingleImageViewController,
                 let indexPath = sender as? IndexPath,
-                let cell = tableView.cellForRow(at: indexPath),
-                let image = (cell as? ImagesListCell)?.backgroundImageView.image
+                let fullImageUrl = URL(string: photos[indexPath.row].largeImageURL)
             else {
                 return
             }
-            viewController.image = image
+            viewController.imageUrl = fullImageUrl
         } else {
             super.prepare(for: segue, sender: sender)
         }
@@ -160,6 +159,8 @@ extension ImagesListViewController: ImagesListCellDelegate {
         UIBlockingProgressHUD.show()
         imagesService.changeLike(photoId: photo.id, isLike: isLiked) {
             [weak self] result in
+            UIBlockingProgressHUD.dismiss()
+            
             switch result {
             case .success:
                 self?.photos[indexPath.row].isLiked.toggle()
@@ -179,7 +180,6 @@ extension ImagesListViewController: ImagesListCellDelegate {
                 
                 self?.present(alert, animated: true, completion: nil)
             }
-            UIBlockingProgressHUD.dismiss()
         }
     }
 }
