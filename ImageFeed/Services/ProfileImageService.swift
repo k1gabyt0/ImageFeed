@@ -12,8 +12,10 @@ final class ProfileImageService {
     private let urlSession = URLSession.shared
     private var currentTask: URLSessionTask?
 
-    private init() {}
-
+    private init() {
+        ProfileLogoutService.shared.register(sessionInfoStorage: self)
+    }
+    
     func fetchProfileImageURL(
         for username: String,
         with token: String,
@@ -70,6 +72,14 @@ final class ProfileImageService {
         request.addAccessToken(token)
         request.httpMethod = Constants.HTTPMethod.get.rawValue
         return request
+    }
+}
+
+extension ProfileImageService: SessionInfoStorage {
+    func resetSessionInfo() {
+        currentTask?.cancel()
+        currentTask = nil
+        avatarURL = nil
     }
 }
 

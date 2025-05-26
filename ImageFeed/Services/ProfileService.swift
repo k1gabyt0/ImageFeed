@@ -14,7 +14,9 @@ final class ProfileService {
     private let urlSession = URLSession.shared
     private var currentTask: URLSessionTask?
 
-    private init() {}
+    private init() {
+        ProfileLogoutService.shared.register(sessionInfoStorage: self)
+    }
 
     func fetchProfile(
         _ token: String,
@@ -68,6 +70,14 @@ final class ProfileService {
         request.addAccessToken(token)
         request.httpMethod = Constants.HTTPMethod.get.rawValue
         return request
+    }
+}
+
+extension ProfileService: SessionInfoStorage {
+    func resetSessionInfo() {
+        currentTask?.cancel()
+        currentTask = nil
+        profile = nil
     }
 }
 

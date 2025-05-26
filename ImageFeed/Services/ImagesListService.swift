@@ -25,7 +25,6 @@ final class ImagesListService {
         let nextPage = (lastLoadedPage ?? 0) + 1
         let request = makeRequest(
             for: nextPage,
-            // TODO: Передавать в функцию?
             with: OAuth2TokenStorage.shared.token
         )
         guard let request else {
@@ -107,7 +106,7 @@ extension ImagesListService {
         let task = urlSession.objectTask(for: request) {
             [weak self] (result: Result<LikeResponse, Error>) in
             switch result {
-            case .success(let likeResponse):
+            case .success:
                 if let index = self?.photos.firstIndex(
                     where: { $0.id == photoId })
                 {
@@ -151,6 +150,14 @@ extension ImagesListService {
             }
         request.addAccessToken(token)
         return request
+    }
+}
+
+extension ImagesListService {
+    func reset() {
+        currentTask?.cancel()
+        currentTask = nil
+        photos = []
     }
 }
 
