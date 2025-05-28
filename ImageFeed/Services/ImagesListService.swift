@@ -35,7 +35,7 @@ final class ImagesListService {
             [weak self] (result: Result<PhotosResponse, Error>) in
             switch result {
             case .success(let dto):
-                self?.photos = dto.toModel()
+                self?.photos += dto.toModel()
                 self?.lastLoadedPage = nextPage
 
                 NotificationCenter.default.post(
@@ -170,6 +170,7 @@ struct Photo {
     let thumbImageURL: String
     let largeImageURL: String
     var isLiked: Bool
+    let createdAt: Date?
 }
 
 // MARK: DTO
@@ -195,6 +196,7 @@ struct PhotoResponse: Codable {
     let description: String?
     let urls: PhotoUrls
     let likedByUser: Bool?
+    let createdAt: String?
 
     private enum CodingKeys: String, CodingKey {
         case id
@@ -203,12 +205,15 @@ struct PhotoResponse: Codable {
         case description
         case urls
         case likedByUser = "liked_by_user"
+        case createdAt = "created_at"
     }
 }
 
 extension PhotosResponse {
     func toModel() -> [Photo] {
-        self.map {
+        let dateFormatter = ISO8601DateFormatter()
+
+        return self.map {
             Photo(
                 id: $0.id,
                 size: CGSize(
@@ -218,7 +223,8 @@ extension PhotosResponse {
                 welcomeDescription: $0.description,
                 thumbImageURL: $0.urls.thumb,
                 largeImageURL: $0.urls.full,
-                isLiked: $0.likedByUser ?? false
+                isLiked: $0.likedByUser ?? false,
+                createdAt: dateFormatter.date(from: $0.createdAt ?? "")
             )
         }
     }

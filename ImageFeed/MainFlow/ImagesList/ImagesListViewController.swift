@@ -38,7 +38,9 @@ final class ImagesListViewController: UIViewController {
                 let viewController = segue.destination
                     as? SingleImageViewController,
                 let indexPath = sender as? IndexPath,
-                let fullImageUrl = URL(string: photos[indexPath.row].largeImageURL)
+                let fullImageUrl = URL(
+                    string: photos[indexPath.row].largeImageURL
+                )
             else {
                 return
             }
@@ -94,7 +96,11 @@ extension ImagesListViewController: UITableViewDataSource {
             return UITableViewCell()
         }
 
-        configCell(for: imageListCell, with: indexPath, image: photos[indexPath.row])
+        configCell(
+            for: imageListCell,
+            with: indexPath,
+            photo: photos[indexPath.row]
+        )
 
         return imageListCell
     }
@@ -112,36 +118,44 @@ extension ImagesListViewController: UITableViewDataSource {
     private func configCell(
         for cell: ImagesListCell,
         with index: IndexPath,
-        image: Photo
+        photo: Photo
     ) {
         cell.delegate = self
 
         cell.backgroundImageView.kf.indicatorType = .activity
         cell.backgroundImageView.kf.setImage(
-            with: URL(string: image.thumbImageURL),
+            with: URL(string: photo.thumbImageURL),
             placeholder: UIImage(resource: .imageStub)
         )
         cell.backgroundImageView.layer.cornerRadius = 16
         cell.backgroundImageView.layer.masksToBounds = true
         cell.backgroundImageView.contentMode = .scaleAspectFit
 
-        cell.dateLabel.text = DateFormatter.russianDate.string(from: Date())
-        
-        cell.setIsLiked(image.isLiked)
+        if let date = photo.createdAt {
+            cell.dateLabel.text = DateFormatter.russianDate
+                .string(from: date)
+        } else {
+            print("[ImagesListViewController] no date for photo: \(photo.id)")
+        }
+
+        cell.setIsLiked(photo.isLiked)
     }
 
     private func updateTableViewAnimated() {
+        let updatedPhotos = imagesService.photos
         let oldPhotosCount = photos.count
-        let newlyLoadedPhotos = imagesService.photos
-        photos += newlyLoadedPhotos
 
-        tableView.performBatchUpdates {
-            let indexPaths =
-                (oldPhotosCount..<oldPhotosCount + newlyLoadedPhotos.count)
-                .map { i in
-                    IndexPath(row: i, section: 0)
-                }
-            tableView.insertRows(at: indexPaths, with: .automatic)
+        photos = updatedPhotos
+
+        if updatedPhotos.count > oldPhotosCount {
+            tableView.performBatchUpdates {
+                let indexPaths =
+                    (oldPhotosCount..<updatedPhotos.count)
+                    .map { i in
+                        IndexPath(row: i, section: 0)
+                    }
+                tableView.insertRows(at: indexPaths, with: .automatic)
+            }
         }
     }
 }
@@ -160,7 +174,7 @@ extension ImagesListViewController: ImagesListCellDelegate {
         imagesService.changeLike(photoId: photo.id, isLike: isLiked) {
             [weak self] result in
             UIBlockingProgressHUD.dismiss()
-            
+
             switch result {
             case .success:
                 self?.photos[indexPath.row].isLiked.toggle()
@@ -173,11 +187,15 @@ extension ImagesListViewController: ImagesListCellDelegate {
                 )
                 alert
                     .addAction(
-                        UIAlertAction(title: "Oк", style: .default, handler: { _ in
-                            alert.dismiss(animated: true)
-                        })
+                        UIAlertAction(
+                            title: "Oк",
+                            style: .default,
+                            handler: { _ in
+                                alert.dismiss(animated: true)
+                            }
+                        )
                     )
-                
+
                 self?.present(alert, animated: true, completion: nil)
             }
         }
