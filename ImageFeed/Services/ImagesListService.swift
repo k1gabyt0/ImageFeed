@@ -1,5 +1,4 @@
 import Foundation
-import UIKit
 
 final class ImagesListService {
     static let shared = ImagesListService()
@@ -35,7 +34,10 @@ final class ImagesListService {
             [weak self] (result: Result<PhotosResponse, Error>) in
             switch result {
             case .success(let dto):
-                self?.photos += dto.toModel()
+                let uniquePhotos = dto.toModel().filter { new in
+                    !(self?.photos.contains(where: { $0.id == new.id }) ?? false)
+                }
+                self?.photos += uniquePhotos
                 self?.lastLoadedPage = nextPage
 
                 NotificationCenter.default.post(
@@ -94,7 +96,6 @@ extension ImagesListService {
         let request = makeRequest(
             forPhoto: photoId,
             is: isLike,
-            // TODO: Передавать в функцию?
             with: OAuth2TokenStorage.shared.token
         )
         guard let request else {
@@ -143,11 +144,9 @@ extension ImagesListService {
 
         var request = URLRequest(url: url)
         request.httpMethod =
-            if like {
-                Constants.HTTPMethod.post.rawValue
-            } else {
-                Constants.HTTPMethod.delete.rawValue
-            }
+            like
+            ? Constants.HTTPMethod.post.rawValue
+            : Constants.HTTPMethod.delete.rawValue
         request.addAccessToken(token)
         return request
     }
@@ -181,6 +180,12 @@ struct LikeResponse: Codable {
 
 typealias PhotosResponse = [PhotoResponse]
 
+extension PhotosResponse {
+    func toModel() -> [Photo] {
+        self.map { $0.toModel() }
+    }
+}
+
 struct PhotoUrls: Codable {
     let raw: String
     let full: String
@@ -198,6 +203,10 @@ struct PhotoResponse: Codable {
     let likedByUser: Bool?
     let createdAt: String?
 
+    private static let dateFormatter: ISO8601DateFormatter = {
+        ISO8601DateFormatter()
+    }()
+
     private enum CodingKeys: String, CodingKey {
         case id
         case width
@@ -207,25 +216,19 @@ struct PhotoResponse: Codable {
         case likedByUser = "liked_by_user"
         case createdAt = "created_at"
     }
-}
 
-extension PhotosResponse {
-    func toModel() -> [Photo] {
-        let dateFormatter = ISO8601DateFormatter()
-
-        return self.map {
-            Photo(
-                id: $0.id,
-                size: CGSize(
-                    width: CGFloat($0.width),
-                    height: CGFloat($0.height)
-                ),
-                welcomeDescription: $0.description,
-                thumbImageURL: $0.urls.thumb,
-                largeImageURL: $0.urls.full,
-                isLiked: $0.likedByUser ?? false,
-                createdAt: dateFormatter.date(from: $0.createdAt ?? "")
-            )
-        }
+    func toModel() -> Photo {
+        Photo(
+            id: id,
+            size: CGSize(
+                width: CGFloat(width),
+                height: CGFloat(height)
+            ),
+            welcomeDescription: description,
+            thumbImageURL: urls.thumb,
+            largeImageURL: urls.full,
+            isLiked: likedByUser ?? false,
+            createdAt: PhotoResponse.dateFormatter.date(from: createdAt ?? "")
+        )
     }
 }

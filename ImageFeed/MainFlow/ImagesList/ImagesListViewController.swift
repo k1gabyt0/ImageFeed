@@ -173,8 +173,6 @@ extension ImagesListViewController: ImagesListCellDelegate {
         UIBlockingProgressHUD.show()
         imagesService.changeLike(photoId: photo.id, isLike: isLiked) {
             [weak self] result in
-            UIBlockingProgressHUD.dismiss()
-
             switch result {
             case .success:
                 self?.photos[indexPath.row].isLiked.toggle()
@@ -198,6 +196,8 @@ extension ImagesListViewController: ImagesListCellDelegate {
 
                 self?.present(alert, animated: true, completion: nil)
             }
+            
+            UIBlockingProgressHUD.dismiss()
         }
     }
 }
