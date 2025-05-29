@@ -11,6 +11,8 @@ final class ProfileViewController: UIViewController {
     private var profileData = ProfileService.shared.profile
     private var profileImageServiceObserver: NSObjectProtocol?
 
+    private let logoutService = ProfileLogoutService.shared
+
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -175,7 +177,7 @@ final class ProfileViewController: UIViewController {
         guard let descriptionLabel, let nicknameLabel else {
             return []
         }
-        
+
         descriptionLabel.translatesAutoresizingMaskIntoConstraints = false
         descriptionLabel.font = .systemFont(ofSize: 13, weight: .regular)
         descriptionLabel.textColor = .ypWhite
@@ -202,7 +204,14 @@ final class ProfileViewController: UIViewController {
         guard let logoutButton, let profileImageView else {
             return []
         }
-        
+
+        logoutButton
+            .addTarget(
+                self,
+                action: #selector(logoutButtonTouched),
+                for: .touchUpInside
+            )
+
         logoutButton.translatesAutoresizingMaskIntoConstraints = false
         logoutButton.setImage(
             UIImage(resource: .exit),
@@ -225,5 +234,27 @@ final class ProfileViewController: UIViewController {
                 constant: 16
             ),
         ]
+    }
+
+    @objc private func logoutButtonTouched() {
+        let alert = UIAlertController(
+            title: "Пока, пока!",
+            message: "Уверены, что хотите выйти?",
+            preferredStyle: .alert
+        )
+        alert.addAction(UIAlertAction(title: "Нет", style: .default))
+        alert.addAction(
+            UIAlertAction(title: "Да", style: .cancel) { [weak self] _ in
+                self?.logoutService.logout()
+                self?.switchToSplash()
+            }
+        )
+
+        present(alert, animated: true)
+    }
+
+    private func switchToSplash() {
+        guard let window = UIApplication.shared.windows.first else { return }
+        window.rootViewController = SplashViewController()
     }
 }

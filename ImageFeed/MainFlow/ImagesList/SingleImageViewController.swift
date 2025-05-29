@@ -1,7 +1,8 @@
+import ProgressHUD
 import UIKit
 
 final class SingleImageViewController: UIViewController {
-    var image: UIImage?
+    var imageUrl: URL?
 
     @IBOutlet private var imageView: UIImageView!
     @IBOutlet private var scrollView: UIScrollView!
@@ -16,14 +17,61 @@ final class SingleImageViewController: UIViewController {
         scrollView.minimumZoomScale = minScale
         scrollView.maximumZoomScale = maxScale
 
-        guard let image = image else { return }
+        loadImage()
+    }
 
-        imageView.image = image
-        imageView.frame.size = image.size
-        view.layoutIfNeeded()
+    private func loadImage() {
+        guard let imageUrl else {
+            return
+        }
 
-        fullScreenScale = calculateScaleFor(image: image)
-        rescaleAndCenterImageInScrollView()
+        UIBlockingProgressHUD.show()
+        imageView.kf.setImage(with: imageUrl) { [weak self] result in
+            UIBlockingProgressHUD.dismiss()
+
+            switch result {
+            case .success(let res):
+                guard let self else { return }
+
+                self.imageView.image = res.image
+                self.imageView.frame.size = res.image.size
+                self.fullScreenScale = self.calculateScaleFor(image: res.image)
+                self.rescaleAndCenterImageInScrollView()
+            case .failure:
+                self?.showError()
+            }
+        }
+    }
+
+    private func showError() {
+        let alert = UIAlertController(
+            title: "Что-то пошло не так",
+            message: "Попробовать ещё раз?",
+            preferredStyle: .alert
+        )
+        alert
+            .addAction(
+                UIAlertAction(
+                    title: "Не надо",
+                    style: .default,
+                    handler: { _ in
+                        alert.dismiss(animated: true)
+                    }
+                )
+            )
+        alert
+            .addAction(
+                UIAlertAction(
+                    title: "Повторить",
+                    style: .default,
+                    handler: { _ in
+                        alert.dismiss(animated: true)
+                        self.loadImage()
+                    }
+                )
+            )
+
+        self.present(alert, animated: true, completion: nil)
     }
 
     @IBAction func didTapBackButton(_ sender: Any) {
@@ -31,7 +79,7 @@ final class SingleImageViewController: UIViewController {
     }
 
     @IBAction func didTapShareButton(_ sender: Any) {
-        guard let image = image else { return }
+        guard let image = imageView.image else { return }
 
         let shareView = UIActivityViewController(
             activityItems: [image],

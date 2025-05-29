@@ -41,6 +41,9 @@
                                                     </constraints>
                                                     <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
                                                     <state key="normal" image="LikeActive"/>
+                                                    <connections>
+                                                        <action selector="likeButtonClicked:" destination="ikD-Le-1ws" eventType="touchUpInside" id="Hlh-Le-jSn"/>
+                                                    </connections>
                                                 </button>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="21 апреля 2025" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="MPq-Il-nVJ" userLabel="Date Label">
                                                     <rect key="frame" x="24" y="102.33333333333333" width="97" height="15.666666666666671"/>

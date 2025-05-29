@@ -16,5 +16,13 @@ final class OAuth2TokenStorage {
         }
     }
 
-    private init() {}
+    private init() {
+        ProfileLogoutService.shared.register(sessionInfoStorage: self)
+    }
+}
+
+extension OAuth2TokenStorage: SessionInfoStorage {
+    func resetSessionInfo() {
+        KeychainWrapper.standard.removeObject(forKey: tokenKey)
+    }
 }
