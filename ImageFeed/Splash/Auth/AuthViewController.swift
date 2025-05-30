@@ -62,11 +62,15 @@ extension AuthViewController: WebViewViewControllerDelegate {
                 )
                 alert
                     .addAction(
-                        UIAlertAction(title: "Oк", style: .default, handler: { _ in
-                            alert.dismiss(animated: true)
-                        })
+                        UIAlertAction(
+                            title: "Oк",
+                            style: .default,
+                            handler: { _ in
+                                alert.dismiss(animated: true)
+                            }
+                        )
                     )
-                
+
                 self?.present(alert, animated: true, completion: nil)
             }
         }
@@ -85,6 +89,9 @@ extension AuthViewController: WebViewViewControllerDelegate {
                 return
             }
 
+            let webViewPresenter = WebViewPresenter(authHelper: AuthHelper())
+            webViewPresenter.view = webView
+            webView.presenter = webViewPresenter
             webView.delegate = self
         }
 
