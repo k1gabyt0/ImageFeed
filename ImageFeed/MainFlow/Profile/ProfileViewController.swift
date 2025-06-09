@@ -1,69 +1,65 @@
 import Kingfisher
 import UIKit
 
-final class ProfileViewController: UIViewController {
+protocol ProfileViewControllerProtocol: AnyObject {
+    func setAvatarImage(from url: URL)
+    func showAlert(_ alert: UIAlertController)
+
+    func setNameLabel(_ text: String?)
+    func setNicknameLabel(_ text: String?)
+    func setDescriptionLabel(_ text: String?)
+}
+
+final class ProfileViewController: UIViewController
+        & ProfileViewControllerProtocol
+{
     private var profileImageView: UIImageView?
     private var nameLabel: UILabel?
     private var nicknameLabel: UILabel?
     private var descriptionLabel: UILabel?
     private var logoutButton: UIButton?
 
-    private var profileData = ProfileService.shared.profile
-    private var profileImageServiceObserver: NSObjectProtocol?
-
-    private let logoutService = ProfileLogoutService.shared
+    private var presenter: ProfilePresenterProtocol?
 
     override func viewDidLoad() {
         super.viewDidLoad()
 
         setupUI()
-
-        profileImageServiceObserver = NotificationCenter.default
-            .addObserver(
-                forName: ProfileImageService.didChangeNotification,
-                object: nil,
-                queue: .main
-            ) { [weak self] _ in
-                guard let self = self else { return }
-                self.updateAvatar()
-            }
-        updateAvatar()
+        presenter?.viewDidLoad()
     }
 
-    private func updateAvatar() {
-        guard
-            let profileImageURL = ProfileImageService.shared.avatarURL,
-            let url = URL(string: profileImageURL),
-            let profileImageView
-        else { return }
+    func configure(presenter: ProfilePresenterProtocol) {
+        self.presenter = presenter
+        self.presenter?.view = self
+    }
+
+    func setAvatarImage(from url: URL) {
+        guard let profileImageView else {
+            return
+        }
 
         profileImageView.kf.indicatorType = .activity
         profileImageView.kf
             .setImage(
-                with: changeImageSize(in: url, width: 70, height: 70),
+                with: url,
                 placeholder: UIImage(resource: .stub)
             )
     }
 
-    private func changeImageSize(in url: URL, width: Int, height: Int) -> URL {
-        guard
-            var components = URLComponents(
-                url: url,
-                resolvingAgainstBaseURL: true
-            )
-        else {
-            return url
-        }
+    func setNameLabel(_ text: String?) {
+        nameLabel?.text = text
+    }
 
-        components.queryItems = [
-            URLQueryItem(name: "w", value: String(width)),
-            URLQueryItem(name: "h", value: String(height)),
-        ]
-        guard let updatedUrl = components.url else {
-            return url
-        }
+    func setNicknameLabel(_ text: String?) {
+        nicknameLabel?.text = text
+    }
 
-        return updatedUrl
+    func setDescriptionLabel(_ text: String?) {
+        descriptionLabel?.text = text
+    }
+    
+    func showAlert(_ alert: UIAlertController) {
+        present(alert, animated: true)
     }
 
     private func setupUI() {
@@ -127,7 +123,6 @@ final class ProfileViewController: UIViewController {
         nameLabel.translatesAutoresizingMaskIntoConstraints = false
         nameLabel.font = .systemFont(ofSize: 23, weight: .bold)
         nameLabel.textColor = .ypWhite
-        nameLabel.text = profileData?.name
         view.addSubview(nameLabel)
 
         let safeArea = view.safeAreaLayoutGuide
@@ -154,7 +149,6 @@ final class ProfileViewController: UIViewController {
         nicknameLabel.translatesAutoresizingMaskIntoConstraints = false
         nicknameLabel.font = .systemFont(ofSize: 13, weight: .regular)
         nicknameLabel.textColor = .ypGray
-        nicknameLabel.text = profileData?.loginName
         view.addSubview(nicknameLabel)
 
         let safeArea = view.safeAreaLayoutGuide
@@ -181,7 +175,6 @@ final class ProfileViewController: UIViewController {
         descriptionLabel.translatesAutoresizingMaskIntoConstraints = false
         descriptionLabel.font = .systemFont(ofSize: 13, weight: .regular)
         descriptionLabel.textColor = .ypWhite
-        descriptionLabel.text = profileData?.bio
         view.addSubview(descriptionLabel)
 
         let safeArea = view.safeAreaLayoutGuide
@@ -237,24 +230,6 @@ final class ProfileViewController: UIViewController {
     }
 
     @objc private func logoutButtonTouched() {
-        let alert = UIAlertController(
-            title: "Пока, пока!",
-            message: "Уверены, что хотите выйти?",
-            preferredStyle: .alert
-        )
-        alert.addAction(UIAlertAction(title: "Нет", style: .default))
-        alert.addAction(
-            UIAlertAction(title: "Да", style: .cancel) { [weak self] _ in
-                self?.logoutService.logout()
-                self?.switchToSplash()
-            }
-        )
-
-        present(alert, animated: true)
-    }
-
-    private func switchToSplash() {
-        guard let window = UIApplication.shared.windows.first else { return }
-        window.rootViewController = SplashViewController()
+        presenter?.logoutButtonTouched()
     }
 }

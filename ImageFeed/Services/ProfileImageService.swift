@@ -1,6 +1,10 @@
 import Foundation
 
-final class ProfileImageService {
+protocol ProfileImageServiceProtocol {
+    var avatarURL: String? { get }
+}
+
+final class ProfileImageService: ProfileImageServiceProtocol {
     static let shared = ProfileImageService()
     static let didChangeNotification = Notification.Name(
         rawValue: "ProfileImageProviderDidChange"
@@ -15,7 +19,7 @@ final class ProfileImageService {
     private init() {
         ProfileLogoutService.shared.register(sessionInfoStorage: self)
     }
-    
+
     func fetchProfileImageURL(
         for username: String,
         with token: String,
@@ -24,7 +28,9 @@ final class ProfileImageService {
         currentTask?.cancel()
 
         guard let request = makeRequest(with: token, for: username) else {
-            print("[ProfileImageService] fetchProfileImageURL: can't create request for username: \(username)")
+            print(
+                "[ProfileImageService] fetchProfileImageURL: can't create request for username: \(username)"
+            )
             completion(.failure(ProfileServiceError.invalidRequest))
             return
         }
