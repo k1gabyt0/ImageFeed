@@ -95,6 +95,7 @@ final class ProfileViewController: UIViewController
 
         profileImageView.translatesAutoresizingMaskIntoConstraints = false
         profileImageView.setRounded()
+        profileImageView.accessibilityIdentifier = "ProfileImage"
         view.addSubview(profileImageView)
 
         let safeArea = view.safeAreaLayoutGuide
@@ -123,6 +124,7 @@ final class ProfileViewController: UIViewController
         nameLabel.translatesAutoresizingMaskIntoConstraints = false
         nameLabel.font = .systemFont(ofSize: 23, weight: .bold)
         nameLabel.textColor = .ypWhite
+        nameLabel.accessibilityIdentifier = "NameLabel"
         view.addSubview(nameLabel)
 
         let safeArea = view.safeAreaLayoutGuide
@@ -149,6 +151,7 @@ final class ProfileViewController: UIViewController
         nicknameLabel.translatesAutoresizingMaskIntoConstraints = false
         nicknameLabel.font = .systemFont(ofSize: 13, weight: .regular)
         nicknameLabel.textColor = .ypGray
+        nicknameLabel.accessibilityIdentifier = "NicknameLabel"
         view.addSubview(nicknameLabel)
 
         let safeArea = view.safeAreaLayoutGuide
@@ -175,6 +178,7 @@ final class ProfileViewController: UIViewController
         descriptionLabel.translatesAutoresizingMaskIntoConstraints = false
         descriptionLabel.font = .systemFont(ofSize: 13, weight: .regular)
         descriptionLabel.textColor = .ypWhite
+        descriptionLabel.accessibilityIdentifier = "DescriptionLabel"
         view.addSubview(descriptionLabel)
 
         let safeArea = view.safeAreaLayoutGuide
@@ -210,6 +214,7 @@ final class ProfileViewController: UIViewController
             UIImage(resource: .exit),
             for: .normal
         )
+        logoutButton.accessibilityIdentifier = "LogoutButton"
         view.addSubview(logoutButton)
 
         let safeArea = view.safeAreaLayoutGuide
