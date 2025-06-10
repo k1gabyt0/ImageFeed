@@ -68,7 +68,7 @@ final class ProfilePresenterSpy: ProfilePresenterProtocol {
     }
 }
 
-final class ViewControllerSpy: ProfileViewControllerProtocol {
+final class ProfileViewControllerSpy: ProfileViewControllerProtocol {
     var setAvatarImageCalled = false
     var showAlertCalled = false
     var setNameLabelCalled = false
@@ -97,3 +97,84 @@ final class ViewControllerSpy: ProfileViewControllerProtocol {
 }
 
 // MARK: ImagesList
+
+final class ImagesListPresenterSpy: ImagesListPresenterProtocol {
+    var view: (any ImageFeed.ImagesListViewProtocol)?
+
+    var photos: [ImageFeed.Photo] = []
+    
+    var viewDidLoadCalled = false
+    var imageListCellDidTapLikeCalled = false
+    var loadMorePhotosCalled = false
+    
+    func imageListCellDidTapLike(at index: IndexPath) {
+        imageListCellDidTapLikeCalled = true
+    }
+
+    func loadMorePhotos() {
+        loadMorePhotosCalled = true
+    }
+    
+    func viewDidLoad() {
+        viewDidLoadCalled = true
+    }
+}
+
+final class ImagesListViewSpy: ImagesListViewProtocol {
+    var showAlertCalled = false
+    var setCellLikeCalled = false
+    var insertRowsCalled = false
+
+    func showAlert(_ alert: UIAlertController) {
+        showAlertCalled = true
+    }
+
+    func setCellLike(isLiked: Bool, at index: IndexPath) {
+        setCellLikeCalled = true
+    }
+
+    func insertRows(at inidicies: Range<Int>) {
+        insertRowsCalled = true
+    }
+}
+
+final class ImagesServiceMock: ImagesListServiceProtocol {
+    var photos: [ImageFeed.Photo] = []
+
+    private let isSuccessChangingLike: Bool
+
+    init(isSuccessChangingLike: Bool = true) {
+        self.isSuccessChangingLike = isSuccessChangingLike
+        fetchPhotosNextPage()
+    }
+
+    func changeLike(
+        photoId: String,
+        isLike: Bool,
+        _ completion: @escaping (Result<Void, any Error>) -> Void
+    ) {
+        if isSuccessChangingLike {
+            completion(.success(()))
+        } else {
+            completion(.failure(NSError(domain: "Network Error", code: 500)))
+        }
+    }
+
+    func fetchPhotosNextPage() {
+        photos.append(
+            Photo(
+                id: "test",
+                size: .zero,
+                welcomeDescription: "test",
+                thumbImageURL: "test",
+                largeImageURL: "test",
+                isLiked: false,
+                createdAt: Date()
+            )
+        )
+        NotificationCenter.default.post(
+            name: ImagesListService.didChangeNotification,
+            object: self
+        )
+    }
+}

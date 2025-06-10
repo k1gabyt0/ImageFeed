@@ -18,7 +18,7 @@ final class ProfileTests: XCTestCase {
 
     func testViewControllerShouldUpdateAvatarOnEvent() {
         // given
-        let spyController = ViewControllerSpy()
+        let spyController = ProfileViewControllerSpy()
         let presenter = ProfilePresenter(
             profileImageService: ProfileImageServiceMock(),
             profileService: ProfileServiceStub(),
@@ -44,7 +44,7 @@ final class ProfileTests: XCTestCase {
     
     func testViewControllerShouldShowAlertOnLogout() {
         // given
-        let spyController = ViewControllerSpy()
+        let spyController = ProfileViewControllerSpy()
         let presenter = ProfilePresenter(
             profileImageService: ProfileImageServiceMock(),
             profileService: ProfileServiceStub(),
