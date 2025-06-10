@@ -2,18 +2,18 @@ import Foundation
 
 protocol ImagesListServiceProtocol {
     var photos: [Photo] { get }
-    
+
     func changeLike(
         photoId: String,
         isLike: Bool,
         _ completion: @escaping (Result<Void, Error>) -> Void
     )
-    
+
     func fetchPhotosNextPage()
 }
 
 final class ImagesListService: ImagesListServiceProtocol {
-    static let shared = ImagesListService()
+    static let shared = ImagesListService(config: .standard)
 
     static let didChangeNotification = Notification.Name(
         rawValue: "ImagesListServiceDidChange"
@@ -26,7 +26,11 @@ final class ImagesListService: ImagesListServiceProtocol {
     private let urlSession = URLSession.shared
     private var currentTask: URLSessionTask?
 
-    private init() {}
+    private let config: AuthConfiguration
+
+    private init(config: AuthConfiguration) {
+        self.config = config
+    }
 
     func fetchPhotosNextPage() {
         guard currentTask == nil else {
@@ -74,7 +78,8 @@ final class ImagesListService: ImagesListServiceProtocol {
         }
 
         var urlComponents = URLComponents(
-            string: Constants.Unsplash.defaultBaseURL
+            url: config.defaultBaseURL,
+            resolvingAgainstBaseURL: true
         )
         urlComponents?.path = "/photos"
         urlComponents?.queryItems = [
@@ -147,7 +152,8 @@ extension ImagesListService {
         }
 
         var urlComponents = URLComponents(
-            string: Constants.Unsplash.defaultBaseURL
+            url: config.defaultBaseURL,
+            resolvingAgainstBaseURL: true
         )
         urlComponents?.path = "/photos/\(id)/like"
         guard let url = urlComponents?.url else {

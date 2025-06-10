@@ -10,15 +10,19 @@ protocol ProfileServiceProtocol {
 }
 
 final class ProfileService: ProfileServiceProtocol {
-    static let shared = ProfileService()
+    static let shared = ProfileService(config: .standard)
 
     private(set) var profile: Profile?
 
     private let currentUserInfoPath = "me"
     private let urlSession = URLSession.shared
     private var currentTask: URLSessionTask?
+    
+    private let config: AuthConfiguration
 
-    private init() {
+    private init(config: AuthConfiguration) {
+        self.config = config
+        
         ProfileLogoutService.shared.register(sessionInfoStorage: self)
     }
 
@@ -64,11 +68,8 @@ final class ProfileService: ProfileServiceProtocol {
             return nil
         }
 
-        let url = URL(string: Constants.Unsplash.defaultBaseURL)?
+        let url = config.defaultBaseURL
             .appendingPathComponent(currentUserInfoPath)
-        guard let url = url else {
-            return nil
-        }
 
         var request = URLRequest(url: url)
         request.addAccessToken(token)

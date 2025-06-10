@@ -52,23 +52,36 @@ final class Image_FeedUITests: XCTestCase {
         let cell = tablesQuery.children(matching: .cell).element(boundBy: 0)
         XCTAssertTrue(cell.waitForExistence(timeout: 5))
         
-        // Свайпаем вверх
+        // Лайкаем и дизлайкаем картинку
+        let likeButton = cell.buttons["LikeButton"]
+        likeButton.tap()
+        XCTAssertTrue(
+            likeButton.wait(
+                for: \.isHittable,
+                toEqual: true,
+                timeout: 3
+            )
+        )
+        likeButton.tap()
+        XCTAssertTrue(
+            cell.wait(
+                for: \.isHittable,
+                toEqual: true,
+                timeout: 3
+            )
+        )
+
+        // Свайпаем
         cell.swipeUp()
 
         // Ждем пока появится картинка которую мы лайкнем
-        let cellToLike = tablesQuery.children(matching: .cell).element(
+        let cellToOpenAsFullscreen = tablesQuery.children(matching: .cell).element(
             boundBy: 1
         )
-        XCTAssertTrue(cellToLike.waitForExistence(timeout: 3))
+        XCTAssertTrue(cellToOpenAsFullscreen.waitForExistence(timeout: 3))
 
-        // Лайкаем и дизлайкаем картинку
-        cellToLike.buttons["LikeButton"].tap()
-        sleep(1)
-        cellToLike.buttons["LikeButton"].tap()
-        sleep(1)
-        
         // Открываем картинку на весь экран
-        cellToLike.tap()
+        cellToOpenAsFullscreen.tap()
         let fullscreenImage = app.scrollViews.images.element(boundBy: 0)
         XCTAssertTrue(fullscreenImage.waitForExistence(timeout: 3))
         // Zoom in
@@ -89,20 +102,22 @@ final class Image_FeedUITests: XCTestCase {
         let tablesQuery = app.tables
         let cell = tablesQuery.children(matching: .cell).element(boundBy: 0)
         XCTAssertTrue(cell.waitForExistence(timeout: 5))
-        
+
         // Тыкаем на вкладку профиля
         app.tabBars.buttons.element(boundBy: 1).tap()
         // Убеждаемся что он отображается
         XCTAssertTrue(app.images["ProfileImage"].waitForExistence(timeout: 1))
         XCTAssertTrue(app.staticTexts["NameLabel"].waitForExistence(timeout: 1))
-        XCTAssertTrue(app.staticTexts["NicknameLabel"].waitForExistence(timeout: 1))
-        
+        XCTAssertTrue(
+            app.staticTexts["NicknameLabel"].waitForExistence(timeout: 1)
+        )
+
         // Тыкаем кнопку логаута
         app.buttons["LogoutButton"].tap()
         // Видим алерт и подтверждаем
         app.alerts["Пока, пока!"].scrollViews.otherElements.buttons["Да"].tap()
-        
+
         // Мы вернулись на страницу логина
-        app.buttons["Authenticate"].waitForExistence(timeout: 3)
+        XCTAssertTrue(app.buttons["Authenticate"].waitForExistence(timeout: 3))
     }
 }

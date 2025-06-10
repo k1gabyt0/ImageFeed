@@ -5,7 +5,7 @@ protocol ProfileImageServiceProtocol {
 }
 
 final class ProfileImageService: ProfileImageServiceProtocol {
-    static let shared = ProfileImageService()
+    static let shared = ProfileImageService(config: .standard)
     static let didChangeNotification = Notification.Name(
         rawValue: "ProfileImageProviderDidChange"
     )
@@ -15,8 +15,12 @@ final class ProfileImageService: ProfileImageServiceProtocol {
     private let userInfoPath = "users"
     private let urlSession = URLSession.shared
     private var currentTask: URLSessionTask?
+    
+    private let config: AuthConfiguration
 
-    private init() {
+    private init(config: AuthConfiguration) {
+        self.config = config
+        
         ProfileLogoutService.shared.register(sessionInfoStorage: self)
     }
 
@@ -67,12 +71,9 @@ final class ProfileImageService: ProfileImageServiceProtocol {
             return nil
         }
 
-        let url = URL(string: Constants.Unsplash.defaultBaseURL)?
+        let url = config.defaultBaseURL
             .appendingPathComponent(userInfoPath)
             .appendingPathComponent(username)
-        guard let url = url else {
-            return nil
-        }
 
         var request = URLRequest(url: url)
         request.addAccessToken(token)

@@ -11,7 +11,11 @@ final class OAuth2Service {
     private var task: URLSessionTask?
     private var currentCode: String?
 
-    private init() {}
+    private let config: AuthConfiguration
+    
+    private init(config: AuthConfiguration = .standard) {
+        self.config = config
+    }
 
     func fetchOAuthToken(
         code: String,
@@ -51,24 +55,24 @@ final class OAuth2Service {
     }
 
     private func makeOAuthTokenRequest(code: String) -> URLRequest? {
-        var urlComponents = URLComponents(string: Constants.Unsplash.tokenURL)
+        var urlComponents = URLComponents(string: config.tokenURLString)
         urlComponents?.queryItems = [
             URLQueryItem(
                 name: "client_id",
-                value: Constants.Unsplash.accessKey
+                value: config.accessKey
             ),
             URLQueryItem(
                 name: "client_secret",
-                value: Constants.Unsplash.secretKey
+                value: config.secretKey
             ),
             URLQueryItem(
                 name: "redirect_uri",
-                value: Constants.Unsplash.redirectURI
+                value: config.redirectURI
             ),
             URLQueryItem(name: "code", value: code),
             URLQueryItem(
                 name: "grant_type",
-                value: Constants.Unsplash.GrantType.authorizationCode
+                value: AuthConfiguration.GrantType.authorizationCode
             ),
         ]
         guard let url = urlComponents?.url else {

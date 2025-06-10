@@ -29,14 +29,14 @@ final class AuthHelper: AuthHelperProtocol {
         urlComponents.queryItems = [
             URLQueryItem(
                 name: "client_id",
-                value: Constants.Unsplash.accessKey
+                value: config.accessKey
             ),
             URLQueryItem(
                 name: "redirect_uri",
-                value: Constants.Unsplash.redirectURI
+                value: config.redirectURI
             ),
             URLQueryItem(name: "response_type", value: "code"),
-            URLQueryItem(name: "scope", value: Constants.Unsplash.accessScope),
+            URLQueryItem(name: "scope", value: config.accessScope),
         ]
 
         return urlComponents.url
