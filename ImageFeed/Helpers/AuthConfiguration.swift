@@ -17,7 +17,7 @@ struct AuthConfiguration {
     let secretKey: String
     let redirectURI: String
     let accessScope: String
-    let defaultBaseURL: URL
+    let defaultBaseURL: URL?
     let authURLString: String
     let tokenURLString: String
     
@@ -31,7 +31,7 @@ struct AuthConfiguration {
         redirectURI: String,
         accessScope: String,
         authURLString: String,
-        defaultBaseURL: URL,
+        defaultBaseURL: URL?,
         tokenURLString: String
     ) {
         self.accessKey = accessKey
@@ -44,13 +44,13 @@ struct AuthConfiguration {
     }
 
     static var standard: AuthConfiguration {
-        return AuthConfiguration(
+        AuthConfiguration(
             accessKey: "74tWGCJJC0sDy4trDUb2PWAc0NxgBGUCABZUUo8u2Eg",
             secretKey: "IAd3EB6aY8Y1RKhAeX2Gs5l0-tr3wPoes-K1_60A1CU",
             redirectURI: "urn:ietf:wg:oauth:2.0:oob",
             accessScope: "public+read_user+write_likes",
             authURLString: "https://unsplash.com/oauth/authorize",
-            defaultBaseURL: URL(string: "https://api.unsplash.com")!,
+            defaultBaseURL: URL(string: "https://api.unsplash.com"),
             tokenURLString: "https://unsplash.com/oauth/token"
         )
     }

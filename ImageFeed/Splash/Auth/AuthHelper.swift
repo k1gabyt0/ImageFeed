@@ -1,8 +1,8 @@
 import Foundation
 
 protocol AuthHelperProtocol {
-    func authRequest() -> URLRequest?
-    func code(from url: URL) -> String?
+    func createAuthRequest() -> URLRequest?
+    func getCode(from url: URL) -> String?
 }
 
 final class AuthHelper: AuthHelperProtocol {
@@ -12,7 +12,7 @@ final class AuthHelper: AuthHelperProtocol {
         self.config = config
     }
 
-    func authRequest() -> URLRequest? {
+    func createAuthRequest() -> URLRequest? {
         guard let url = authURL() else {
             return nil
         }
@@ -42,7 +42,7 @@ final class AuthHelper: AuthHelperProtocol {
         return urlComponents.url
     }
 
-    func code(from url: URL) -> String? {
+    func getCode(from url: URL) -> String? {
         if let urlComponents = URLComponents(string: url.absoluteString),
             urlComponents.path == "/oauth/authorize/native",
             let items = urlComponents.queryItems,

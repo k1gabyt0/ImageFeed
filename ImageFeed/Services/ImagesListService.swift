@@ -73,12 +73,12 @@ final class ImagesListService: ImagesListServiceProtocol {
     private func makeRequest(for page: Int, with token: String?)
         -> URLRequest?
     {
-        guard let token else {
+        guard let token, let defaultBaseURL = config.defaultBaseURL else {
             return nil
         }
 
         var urlComponents = URLComponents(
-            url: config.defaultBaseURL,
+            url: defaultBaseURL,
             resolvingAgainstBaseURL: true
         )
         urlComponents?.path = "/photos"
@@ -147,12 +147,12 @@ extension ImagesListService {
     )
         -> URLRequest?
     {
-        guard let token else {
+        guard let token, let defaultBaseURL = config.defaultBaseURL else {
             return nil
         }
 
         var urlComponents = URLComponents(
-            url: config.defaultBaseURL,
+            url: defaultBaseURL,
             resolvingAgainstBaseURL: true
         )
         urlComponents?.path = "/photos/\(id)/like"

@@ -1,11 +1,11 @@
 import Foundation
 
-public protocol WebViewPresenterProtocol {
+protocol WebViewPresenterProtocol {
     var view: WebViewViewControllerProtocol? { get set }
 
     func viewDidLoad()
     func didUpdateProgressValue(_ newValue: Double)
-    func code(from url: URL) -> String?
+    func getCode(from url: URL) -> String?
 }
 
 final class WebViewPresenter: WebViewPresenterProtocol {
@@ -18,7 +18,7 @@ final class WebViewPresenter: WebViewPresenterProtocol {
     }
 
     func viewDidLoad() {
-        guard let request = authHelper.authRequest() else {
+        guard let request = authHelper.createAuthRequest() else {
             return
         }
 
@@ -38,7 +38,7 @@ final class WebViewPresenter: WebViewPresenterProtocol {
         abs(value - 1.0) <= 0.0001
     }
 
-    func code(from url: URL) -> String? {
-        authHelper.code(from: url)
+    func getCode(from url: URL) -> String? {
+        authHelper.getCode(from: url)
     }
 }

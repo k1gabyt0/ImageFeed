@@ -71,9 +71,12 @@ final class ProfileImageService: ProfileImageServiceProtocol {
             return nil
         }
 
-        let url = config.defaultBaseURL
+        guard let url = config.defaultBaseURL?
             .appendingPathComponent(userInfoPath)
             .appendingPathComponent(username)
+        else {
+            return nil
+        }
 
         var request = URLRequest(url: url)
         request.addAccessToken(token)

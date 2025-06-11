@@ -3,7 +3,7 @@ import UIKit
 protocol ImagesListViewProtocol: AnyObject {
     func showAlert(_ alert: UIAlertController)
     func setCellLike(isLiked: Bool, at index: IndexPath)
-    func insertRows(at inidicies: Range<Int>)
+    func insertRows(at indices: Range<Int>)
 }
 
 final class ImagesListViewController: UIViewController & ImagesListViewProtocol
@@ -56,7 +56,7 @@ final class ImagesListViewController: UIViewController & ImagesListViewProtocol
     }
 
     func showAlert(_ alert: UIAlertController) {
-        self.present(alert, animated: true, completion: nil)
+        present(alert, animated: true, completion: nil)
     }
 
     func setCellLike(isLiked: Bool, at index: IndexPath) {

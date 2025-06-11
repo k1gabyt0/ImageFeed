@@ -17,12 +17,12 @@ final class ProfileService: ProfileServiceProtocol {
     private let currentUserInfoPath = "me"
     private let urlSession = URLSession.shared
     private var currentTask: URLSessionTask?
-    
+
     private let config: AuthConfiguration
 
     private init(config: AuthConfiguration) {
         self.config = config
-        
+
         ProfileLogoutService.shared.register(sessionInfoStorage: self)
     }
 
@@ -68,8 +68,10 @@ final class ProfileService: ProfileServiceProtocol {
             return nil
         }
 
-        let url = config.defaultBaseURL
-            .appendingPathComponent(currentUserInfoPath)
+        guard let url = config.defaultBaseURL?
+            .appendingPathComponent(currentUserInfoPath) else {
+            return nil
+        }
 
         var request = URLRequest(url: url)
         request.addAccessToken(token)

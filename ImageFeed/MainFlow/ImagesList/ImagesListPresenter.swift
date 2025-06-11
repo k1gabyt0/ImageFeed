@@ -39,10 +39,18 @@ final class ImagesListPresenter: ImagesListPresenterProtocol {
         UIBlockingProgressHUD.show()
         imagesService.changeLike(photoId: photo.id, isLike: isLiked) {
             [weak self] result in
+            defer {
+                UIBlockingProgressHUD.dismiss()
+            }
+            
+            guard let self else {
+                return
+            }
+            
             switch result {
             case .success:
-                self?.photos[index.row].isLiked.toggle()
-                self?.view?.setCellLike(isLiked: isLiked, at: index)
+                self.photos[index.row].isLiked.toggle()
+                self.view?.setCellLike(isLiked: isLiked, at: index)
             case .failure(let error):
                 let alert = UIAlertController(
                     title: "Что-то пошло не так",
@@ -60,10 +68,8 @@ final class ImagesListPresenter: ImagesListPresenterProtocol {
                         )
                     )
 
-                self?.view?.showAlert(alert)
+                self.view?.showAlert(alert)
             }
-
-            UIBlockingProgressHUD.dismiss()
         }
     }
     
