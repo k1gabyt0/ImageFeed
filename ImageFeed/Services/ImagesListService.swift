@@ -1,7 +1,19 @@
 import Foundation
 
-final class ImagesListService {
-    static let shared = ImagesListService()
+protocol ImagesListServiceProtocol {
+    var photos: [Photo] { get }
+
+    func changeLike(
+        photoId: String,
+        isLike: Bool,
+        _ completion: @escaping (Result<Void, Error>) -> Void
+    )
+
+    func fetchPhotosNextPage()
+}
+
+final class ImagesListService: ImagesListServiceProtocol {
+    static let shared = ImagesListService(config: .standard)
 
     static let didChangeNotification = Notification.Name(
         rawValue: "ImagesListServiceDidChange"
@@ -14,7 +26,11 @@ final class ImagesListService {
     private let urlSession = URLSession.shared
     private var currentTask: URLSessionTask?
 
-    private init() {}
+    private let config: AuthConfiguration
+
+    private init(config: AuthConfiguration) {
+        self.config = config
+    }
 
     func fetchPhotosNextPage() {
         guard currentTask == nil else {
@@ -57,12 +73,13 @@ final class ImagesListService {
     private func makeRequest(for page: Int, with token: String?)
         -> URLRequest?
     {
-        guard let token else {
+        guard let token, let defaultBaseURL = config.defaultBaseURL else {
             return nil
         }
 
         var urlComponents = URLComponents(
-            string: Constants.Unsplash.defaultBaseURL
+            url: defaultBaseURL,
+            resolvingAgainstBaseURL: true
         )
         urlComponents?.path = "/photos"
         urlComponents?.queryItems = [
@@ -130,12 +147,13 @@ extension ImagesListService {
     )
         -> URLRequest?
     {
-        guard let token else {
+        guard let token, let defaultBaseURL = config.defaultBaseURL else {
             return nil
         }
 
         var urlComponents = URLComponents(
-            string: Constants.Unsplash.defaultBaseURL
+            url: defaultBaseURL,
+            resolvingAgainstBaseURL: true
         )
         urlComponents?.path = "/photos/\(id)/like"
         guard let url = urlComponents?.url else {

@@ -5,8 +5,12 @@ enum ProfileServiceError: Error {
     case requestIsAlreadyRunning
 }
 
-final class ProfileService {
-    static let shared = ProfileService()
+protocol ProfileServiceProtocol {
+    var profile: Profile? { get }
+}
+
+final class ProfileService: ProfileServiceProtocol {
+    static let shared = ProfileService(config: .standard)
 
     private(set) var profile: Profile?
 
@@ -14,7 +18,11 @@ final class ProfileService {
     private let urlSession = URLSession.shared
     private var currentTask: URLSessionTask?
 
-    private init() {
+    private let config: AuthConfiguration
+
+    private init(config: AuthConfiguration) {
+        self.config = config
+
         ProfileLogoutService.shared.register(sessionInfoStorage: self)
     }
 
@@ -60,9 +68,8 @@ final class ProfileService {
             return nil
         }
 
-        let url = URL(string: Constants.Unsplash.defaultBaseURL)?
-            .appendingPathComponent(currentUserInfoPath)
-        guard let url = url else {
+        guard let url = config.defaultBaseURL?
+            .appendingPathComponent(currentUserInfoPath) else {
             return nil
         }
 

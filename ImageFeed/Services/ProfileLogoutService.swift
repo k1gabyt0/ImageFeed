@@ -4,7 +4,11 @@ protocol SessionInfoStorage {
     func resetSessionInfo()
 }
 
-final class ProfileLogoutService {
+protocol LogoutServiceProtocol {
+    func logout()
+}
+
+final class ProfileLogoutService: LogoutServiceProtocol {
     static let shared = ProfileLogoutService()
 
     private var loginInfoItems : [SessionInfoStorage] = []

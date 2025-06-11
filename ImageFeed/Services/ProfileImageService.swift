@@ -1,7 +1,11 @@
 import Foundation
 
-final class ProfileImageService {
-    static let shared = ProfileImageService()
+protocol ProfileImageServiceProtocol {
+    var avatarURL: String? { get }
+}
+
+final class ProfileImageService: ProfileImageServiceProtocol {
+    static let shared = ProfileImageService(config: .standard)
     static let didChangeNotification = Notification.Name(
         rawValue: "ProfileImageProviderDidChange"
     )
@@ -11,11 +15,15 @@ final class ProfileImageService {
     private let userInfoPath = "users"
     private let urlSession = URLSession.shared
     private var currentTask: URLSessionTask?
+    
+    private let config: AuthConfiguration
 
-    private init() {
+    private init(config: AuthConfiguration) {
+        self.config = config
+        
         ProfileLogoutService.shared.register(sessionInfoStorage: self)
     }
-    
+
     func fetchProfileImageURL(
         for username: String,
         with token: String,
@@ -24,7 +32,9 @@ final class ProfileImageService {
         currentTask?.cancel()
 
         guard let request = makeRequest(with: token, for: username) else {
-            print("[ProfileImageService] fetchProfileImageURL: can't create request for username: \(username)")
+            print(
+                "[ProfileImageService] fetchProfileImageURL: can't create request for username: \(username)"
+            )
             completion(.failure(ProfileServiceError.invalidRequest))
             return
         }
@@ -61,10 +71,10 @@ final class ProfileImageService {
             return nil
         }
 
-        let url = URL(string: Constants.Unsplash.defaultBaseURL)?
+        guard let url = config.defaultBaseURL?
             .appendingPathComponent(userInfoPath)
             .appendingPathComponent(username)
-        guard let url = url else {
+        else {
             return nil
         }
 

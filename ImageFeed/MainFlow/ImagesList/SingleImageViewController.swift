@@ -71,7 +71,7 @@ final class SingleImageViewController: UIViewController {
                 )
             )
 
-        self.present(alert, animated: true, completion: nil)
+        present(alert, animated: true, completion: nil)
     }
 
     @IBAction func didTapBackButton(_ sender: Any) {
